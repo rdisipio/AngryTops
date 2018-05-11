@@ -101,7 +101,8 @@ for ientry in range(n_entries_reco):
 
     if t.Pt() == 0.: continue
     if tb.Pt() == 0.: continue
-
+    if t.M() != t.M(): continue
+    if tb.M() != tb.M(): continue
 
     # make event wrapper
     event = np.zeros( [ n_jets_max, n_features_per_jet ] )
