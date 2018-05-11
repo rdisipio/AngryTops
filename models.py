@@ -10,7 +10,7 @@ from keras.layers.merge import *
 from keras.optimizers import *
 from keras.regularizers import l2
 
-def create_rnn( n_jets_per_event, n_features_per_jet ):
+def create_model_rnn( n_jets_per_event=7, n_features_per_jet=6, n_features_per_top=5 ):
    inshape   = (n_jets_per_event,n_features_per_jet)
 
    input = Input( shape=inshape )
@@ -22,8 +22,10 @@ def create_rnn( n_jets_per_event, n_features_per_jet ):
 
    x = Dense(20)(x)
 
-   output = Dense( 2*5 )(x)
+   output = Dense( 2*n_features_per_top )(x)
 
    model = Model(inputs=[input], outputs=[output] )
+
+   model.compile( optimizer='adam', loss='mean_squared_error' )
 
    return model
