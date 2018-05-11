@@ -25,3 +25,9 @@ target_features = [
   "t_px",  "t_py",  "t_pz",  "t_E",  "t_m",
   "tb_px", "tb_py", "tb_pz", "tb_E", "tb_m",
 ]
+
+n_jets_per_event   = 7
+n_features_per_jet = 6 # (px, py, pz, E, M, bw )
+n_features_per_top = 5 # (px, py, pz, E, M )
+
+

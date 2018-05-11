@@ -9,19 +9,14 @@ import numpy as np
 
 gROOT.SetBatch(True)
 
+from features import *
+
 ###############################
 
 GeV = 1e3
 TeV = 1e6
 
 ###############################
-
-n_jets_max = 7
-n_features_per_jet = 6 # (px, py, pz, E, M, bw )
-n_features_per_top = 5 # (px, py, pz, E, M )
-
-###############################
-
 
 filelistname = sys.argv[1]
 
@@ -79,7 +74,7 @@ for ientry in range(n_entries_reco):
     jets_n = len(tree_reco.jet_pt)
     jets = []
     for i in range(jets_n):
-        if i >= n_jets_max: break
+        if i >= n_jets_per_event: break
         
         jets += [ TLorentzVector() ]
         j = jets[-1]
@@ -105,7 +100,7 @@ for ientry in range(n_entries_reco):
     if tb.M() != tb.M(): continue
 
     # make event wrapper
-    event = np.zeros( [ n_jets_max, n_features_per_jet ] )
+    event = np.zeros( [ n_jets_per_event, n_features_per_jet ] )
 
     for i in range(len(jets)):
         jet = jets[i]
