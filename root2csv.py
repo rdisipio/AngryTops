@@ -57,10 +57,10 @@ for ientry in range(n_entries_reco):
         perc = 100. * ientry / float(n_entries_reco)
         print "INFO: Event %-9i  (%3.0f %%)" % ( ientry, perc )
 
-    passed_ejets  = tree_reco.passed_resolved_ejets_4j2b_2015 or tree_reco.passed_resolved_ejets_4j2b_2016
-    passed_mujets = tree_reco.passed_resolved_mujets_4j2b_2015 or tree_reco.passed_resolved_mujets_4j2b_2016
-    accepted = passed_ejets or passed_mujets
-    if not accepted: continue
+#    passed_ejets  = tree_reco.passed_resolved_ejets_4j2b_2015 or tree_reco.passed_resolved_ejets_4j2b_2016
+#    passed_mujets = tree_reco.passed_resolved_mujets_4j2b_2015 or tree_reco.passed_resolved_mujets_4j2b_2016
+#    accepted = passed_ejets or passed_mujets
+#    if not accepted: continue
 
     mcChannelNumber = tree_reco.mcChannelNumber
     runNumber       = tree_reco.runNumber
@@ -111,7 +111,7 @@ for ientry in range(n_entries_reco):
         event[i][4] = jet.M()/GeV
         event[i][5] = jet.mv2c10
 
-    target = np.zeros( [ 2, n_features_per_top ] )
+    target = np.zeros( [ 2, 5 ] )
     target[0][0] = t.Px()/GeV
     target[0][1] = t.Py()/GeV
     target[0][2] = t.Pz()/GeV

@@ -71,7 +71,7 @@ mc_weights = None
 #mc_weights = data["weight"].values
 
 # training parameters
-MAX_EPOCHS = 20
+MAX_EPOCHS = 50
 BATCH_SIZE = 2048
 
 # go on with the training

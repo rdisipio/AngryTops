@@ -17,13 +17,14 @@ def create_model_rnn( dropout=0 ):
 
    input = Input( shape=inshape )
 
-   x = TimeDistributed( Dense(100), input_shape=inshape )(input)
+   x = TimeDistributed( Dense(200), input_shape=inshape )(input)
+   x = LSTM( 100, recurrent_dropout=dropout, return_sequences=True )(x)
    x = LSTM(  80, recurrent_dropout=dropout, return_sequences=True )(x)
-   x = LSTM(  50, recurrent_dropout=dropout, return_sequences=True )(x)
-   x = LSTM(  25, recurrent_dropout=dropout, return_sequences=False )(x)
+   x = LSTM(  50, recurrent_dropout=dropout, return_sequences=False )(x)
 
+   x = Dense(30)(x)
    x = Dense(20)(x)
-
+   
    output = Dense( 2*n_features_per_top )(x)
 
    model = Model(inputs=[input], outputs=[output] )
