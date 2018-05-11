@@ -134,14 +134,14 @@ for ientry in range(n_entries_reco):
     # write out
     csvwriter.writerow( (
        "%i" % tree_reco.runNumber, "%i" % tree_reco.eventNumber, "%.3f" % weight,
-       "%4.1f" % lep.Px(),     "%4.1f" % lep.Py(),     "%4.2f" % lep.Pz(),     "%4.1f" % lep.E(),      "%4.1f" % met_met,      "%.2f" % met_phi,
-       "%4.1f" % sjets[0][0],  "%4.1f" % sjets[0][1],  "%4.2f" % sjets[0][2],  "%4.1f" % sjets[0][3],  "%4.1f" % sjets[0][4],  "%.3f" % sjets[0][5], 
-       "%4.1f" % sjets[1][0],  "%4.1f" % sjets[1][1],  "%4.2f" % sjets[1][2],  "%4.1f" % sjets[1][3],  "%4.1f" % sjets[1][4],  "%.3f" % sjets[1][5], 
-       "%4.1f" % sjets[2][0],  "%4.1f" % sjets[2][1],  "%4.2f" % sjets[2][2],  "%4.1f" % sjets[2][3],  "%4.1f" % sjets[2][4],  "%.3f" % sjets[2][5],
-       "%4.1f" % sjets[3][0],  "%4.1f" % sjets[3][1],  "%4.2f" % sjets[3][2],  "%4.1f" % sjets[3][3],  "%4.1f" % sjets[3][4],  "%.3f" % sjets[3][5], 
-       "%4.1f" % sjets[4][0],  "%4.1f" % sjets[4][1],  "%4.2f" % sjets[4][2],  "%4.1f" % sjets[4][3],  "%4.1f" % sjets[4][4],  "%.3f" % sjets[4][5], 
-       "%4.1f" % target[0][0], "%4.1f" % target[0][1], "%4.2f" % target[0][2], "%4.1f" % target[0][3], "%4.1f" % target[0][4],
-       "%4.1f" % target[1][0], "%4.1f" % target[1][1], "%4.2f" % target[1][2], "%4.1f" % target[1][3], "%4.1f" % target[1][4]
+       "%.3f" % lep.Px(),     "%.3f" % lep.Py(),     "%.3f" % lep.Pz(),     "%.3f" % lep.E(),      "%.3f" % met_met,      "%.3f" % met_phi,
+       "%.3f" % sjets[0][0],  "%.3f" % sjets[0][1],  "%.3f" % sjets[0][2],  "%.3f" % sjets[0][3],  "%.3f" % sjets[0][4],  "%.3f" % sjets[0][5], 
+       "%.3f" % sjets[1][0],  "%.3f" % sjets[1][1],  "%.3f" % sjets[1][2],  "%.3f" % sjets[1][3],  "%.3f" % sjets[1][4],  "%.3f" % sjets[1][5], 
+       "%.3f" % sjets[2][0],  "%.3f" % sjets[2][1],  "%.3f" % sjets[2][2],  "%.3f" % sjets[2][3],  "%.3f" % sjets[2][4],  "%.3f" % sjets[2][5],
+       "%.3f" % sjets[3][0],  "%.3f" % sjets[3][1],  "%.3f" % sjets[3][2],  "%.3f" % sjets[3][3],  "%.3f" % sjets[3][4],  "%.3f" % sjets[3][5], 
+       "%.3f" % sjets[4][0],  "%.3f" % sjets[4][1],  "%.3f" % sjets[4][2],  "%.3f" % sjets[4][3],  "%.3f" % sjets[4][4],  "%.3f" % sjets[4][5], 
+       "%.3f" % target[0][0], "%.3f" % target[0][1], "%.3f" % target[0][2], "%.3f" % target[0][3], "%.3f" % target[0][4],
+       "%.3f" % target[1][0], "%.3f" % target[1][1], "%.3f" % target[1][2], "%.3f" % target[1][3], "%.3f" % target[1][4]
     ) )
 
     n_good += 1

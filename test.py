@@ -57,11 +57,9 @@ event_info = data[['runNumber','eventNumber','weight']].values
 n_events = len(data)
 
 X_scaled = X_scaler.transform(X)
-y_scaled = y_scaler.transform(y)
 
 X_scaled = X_scaled.reshape( ( n_events, (1+n_jets_per_event), n_features_per_jet) )
 print "INFO: input shape:", X_scaled.shape
-print "INFO: target shape:", y_scaled.shape
 
 y_fitted = dnn.predict( X_scaled )
 y_fitted = y_scaler.inverse_transform( y_fitted )
@@ -74,12 +72,12 @@ ofile.cd()
 # book histograms
 histograms = {}
 histograms['t_pt']       = TH1F( "t_pt", ";Top p_{T} [GeV]", 50, 0., 1500. )
-histograms['t_y']      = TH1F( "t_y", ";Top #eta", 25, -5., 5. )
+histograms['t_y']        = TH1F( "t_y", ";Top #eta", 25, -5., 5. )
 histograms['t_phi']      = TH1F( "t_phi", ";Top #phi", 32, -3.2, 3.2 )
 histograms['t_E']        = TH1F( "t_E",  ";Top E [GeV]", 50, 0., 1500. )
 histograms['t_m']        = TH1F( "t_m", ";Top m [GeV]", 30, 0., 300.  )
 histograms['tb_pt']       = TH1F( "tb_pt", ";Anti-top p_{T} [GeV]", 50, 0., 1500. )
-histograms['tb_y']      = TH1F( "tb_y", ";Anti-top #eta", 25, -5., 5. )
+histograms['tb_y']        = TH1F( "tb_y", ";Anti-top #eta", 25, -5., 5. )
 histograms['tb_phi']      = TH1F( "tb_phi", ";Anti-top #phi", 32, -3.2, 3.2 )
 histograms['tb_E']        = TH1F( "tb_E",  ";Anti-top E [GeV]", 50, 0., 1500. )
 histograms['tb_m']        = TH1F( "tb_m", ";Anti-top m [GeV]", 30, 0., 300. )
@@ -94,12 +92,18 @@ histograms['corr_tb_y']    = TH2F( "corr_tb_y",      ";True Anti-top y;Fitted An
 histograms['corr_tb_phi']  = TH2F( "corr_tb_phi",    ";True Anti-top #phi;Fitted Anti-top #phi", 32, -3.2, 3.2, 32, -3.2, 3.2 )
 histograms['corr_tb_E']    = TH2F( "corr_tb_E",      ";True Anti-top E [GeV];Fitted Anti-top E [GeV]", 50, 0., 1500., 50, 0., 1500. )
 histograms['corr_tb_m']    = TH2F( "corr_tb_m",      ";True Anti-top m [GeV];Fitted Anti-top m [GeV]", 30, 0., 300., 30, 0., 300. )
-    
+
+histograms['reso_t_px']   = TH1F( "reso_t_px",   "Top p_{x} resolution", 100, -3.0, 3.0 )
+histograms['reso_t_py']   = TH1F( "reso_t_py",   "Top p_{y} resolution", 100, -3.0, 3.0 )
+histograms['reso_t_pz']   = TH1F( "reso_t_pz",   "Top p_{z} resolution", 100, -3.0, 3.0 )
 histograms['reso_t_pt']   = TH1F( "reso_t_pt",   "Top p_{T} resolution", 100, -3.0, 3.0 )
 histograms['reso_t_y']    = TH1F( "reso_t_y",    "Top y resolution",  100, -3.0, 3.0 )
 histograms['reso_t_phi']  = TH1F( "reso_t_phi",  "Top #phi resolution",  100, -3.0, 3.0 )
 histograms['reso_t_E']    = TH1F( "reso_t_E",    "Top E resolution",     100, -3.0, 3.0 )
 histograms['reso_t_m']    = TH1F( "reso_t_m",    "Top M resolution",     100, -3.0, 3.0 )
+histograms['reso_tb_px']  = TH1F( "reso_tb_px",  "Anti-top p_{x} resolution", 100, -3.0, 3.0 )
+histograms['reso_tb_py']  = TH1F( "reso_tb_py",  "Anti-top p_{y} resolution", 100, -3.0, 3.0 )
+histograms['reso_tb_pz']  = TH1F( "reso_tb_pz",  "Anti-top p_{z} resolution", 100, -3.0, 3.0 )
 histograms['reso_tb_pt']  = TH1F( "reso_tb_pt",  "Anti-top p_{T} resolution", 100, -3.0, 3.0 )
 histograms['reso_tb_y']   = TH1F( "reso_tb_y",   "Anti-top y resolution",  100, -3.0, 3.0 )
 histograms['reso_tb_phi'] = TH1F( "reso_tb_phi", "Anti-top #phi resolution",  100, -3.0, 3.0 )
@@ -129,12 +133,18 @@ for i in range(n_events):
     tb_fitted.SetPxPyPzE( y_fitted[i][4], y_fitted[i][5], y_fitted[i][6], y_fitted[i][7] )
 
     try:
+        reso_t_px  = ( t_fitted.Px()  - t_true.Px()  ) / t_true.Px()
+        reso_t_py  = ( t_fitted.Py()  - t_true.Py()  ) / t_true.Py()
+        reso_t_pz  = ( t_fitted.Pz()  - t_true.Pz()  ) / t_true.Pz()
         reso_t_pt  = ( t_fitted.Pt()  - t_true.Pt()  ) / t_true.Pt()   #if t_true.Pt()  != 0. else -1000.
         reso_t_y   = ( t_fitted.Rapidity() - t_true.Rapidity() ) / t_true.Rapidity()  #if t_true.Rapidity() != 0. else -1000.
         reso_t_phi = ( t_fitted.Phi() - t_true.Phi() ) / t_true.Phi()  #if t_true.Phi() != 0. else -1000.
         reso_t_E   = ( t_fitted.E()   - t_true.E()   ) / t_true.E()    #if t_true.E()   != 0. else -1000.
         reso_t_m   = ( t_fitted.M()   - t_true.M()   ) / t_true.M()    #if t_true.M()   != 0. else -1000.
-       
+
+        reso_tb_px  = ( tb_fitted.Px()  - tb_true.Px()  ) / tb_true.Px()
+        reso_tb_py  = ( tb_fitted.Py()  - tb_true.Py()  ) / tb_true.Py()
+        reso_tb_pz  = ( tb_fitted.Pz()  - tb_true.Pz()  ) / tb_true.Pz()
         reso_tb_pt  = ( tb_fitted.Pt()  - tb_true.Pt()  ) / tb_true.Pt()    #if tb_true.Pt()   != 0. else -1000.
         reso_tb_y = ( tb_fitted.Rapidity() - tb_true.Rapidity() ) / tb_true.Rapidity()   #if tb_true.Rapidity()  != 0. else -1000.
         reso_tb_phi = ( tb_fitted.Phi() - tb_true.Phi() ) / tb_true.Phi()   #if tb_true.Phi()  != 0. else -1000.
@@ -144,6 +154,7 @@ for i in range(n_events):
         print "WARNING: invalid tops, skipping event ( rn=%-10i en=%-10i )" % ( event_info[i][0], event_info[i][1] )
         continue
 
+    #histograms['t_px'].Fill(  t_fitted.Px(),  w )
     histograms['t_pt'].Fill(  t_fitted.Pt(),  w )
     histograms['t_y'].Fill( t_fitted.Rapidity(), w )
     histograms['t_phi'].Fill( t_fitted.Phi(), w )
@@ -165,12 +176,18 @@ for i in range(n_events):
     histograms['corr_tb_phi'].Fill( t_true.Phi(),      tb_fitted.Phi(), w )
     histograms['corr_tb_E'].Fill(   t_true.E(),        tb_fitted.E(),   w )
     histograms['corr_tb_m'].Fill(   t_true.M(),        tb_fitted.M(),   w )
-    
+
+    histograms['reso_t_px'].Fill(  reso_t_px,  w )
+    histograms['reso_t_py'].Fill(  reso_t_py,  w )
+    histograms['reso_t_pz'].Fill(  reso_t_pz,  w )
     histograms['reso_t_pt'].Fill(  reso_t_pt,  w )
     histograms['reso_t_y'].Fill( reso_t_y, w )
     histograms['reso_t_phi'].Fill( reso_t_phi, w )
     histograms['reso_t_E'].Fill(   reso_t_E,   w )
     histograms['reso_t_m'].Fill(   reso_t_m,   w )
+    histograms['reso_tb_px'].Fill(  reso_tb_px,  w )
+    histograms['reso_tb_py'].Fill(  reso_tb_py,  w )
+    histograms['reso_tb_pz'].Fill(  reso_tb_pz,  w )
     histograms['reso_tb_pt'].Fill(  reso_tb_pt,  w )
     histograms['reso_tb_y'].Fill( reso_tb_y, w )
     histograms['reso_tb_phi'].Fill( reso_tb_phi, w )
