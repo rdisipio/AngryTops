@@ -108,16 +108,16 @@ for ientry in range(n_entries_reco):
     if tb.M() != tb.M(): continue
 
     # make event wrapper
-    event_jets = np.zeros( [ n_jets_per_event, n_features_per_jet ] )
+    sjets = np.zeros( [ n_jets_per_event, n_features_per_jet ] )
 
     for i in range(len(jets)):
         jet = jets[i]
-        event_jets[i][0] = jet.Px()/GeV
-        event_jets[i][1] = jet.Py()/GeV 
-        event_jets[i][2] = jet.Pz()/GeV
-        event_jets[i][3] = jet.E()/GeV
-        event_jets[i][4] = jet.M()/GeV
-        event_jets[i][5] = jet.mv2c10
+        sjets[i][0] = jet.Px()/GeV
+        sjets[i][1] = jet.Py()/GeV 
+        sjets[i][2] = jet.Pz()/GeV
+        sjets[i][3] = jet.E()/GeV
+        sjets[i][4] = jet.M()/GeV
+        sjets[i][5] = jet.mv2c10
 
     target = np.zeros( [ 2, 5 ] )
     target[0][0] = t.Px()/GeV
@@ -134,14 +134,14 @@ for ientry in range(n_entries_reco):
     # write out
     csvwriter.writerow( (
        "%i" % tree_reco.runNumber, "%i" % tree_reco.eventNumber, "%.3f" % weight,
-       "%4.1f" % lep.Px(), "%4.1f" % lep.Py(), "%4.1f" % lep.Pz(), "%4.1f" % lep.E(), "%4.1f" % met_met, "%.2f" % met_phi,
-       "%4.1f" % event_jets[0][0], "%4.1f" % event_jets[0][1], "%4.1f" % event_jets[0][2], "%4.1f" % event_jets[0][3], "%4.1f" % event_jets[0][4],  "%.3f" % event_jets[0][5], 
-       "%4.1f" % event_jets[1][0], "%4.1f" % event_jets[1][1], "%4.1f" % event_jets[1][2], "%4.1f" % event_jets[1][3], "%4.1f" % event_jets[1][4],  "%.3f" % event_jets[1][5], 
-       "%4.1f" % event_jets[2][0], "%4.1f" % event_jets[2][1], "%4.1f" % event_jets[2][2], "%4.1f" % event_jets[2][3], "%4.1f" % event_jets[2][4],  "%.3f" % event_jets[2][5],
-       "%4.1f" % event_jets[3][0], "%4.1f" % event_jets[3][1], "%4.1f" % event_jets[3][2], "%4.1f" % event_jets[3][3], "%4.1f" % event_jets[3][4],  "%.3f" % event_jets[3][5], 
-       "%4.1f" % event_jets[4][0], "%4.1f" % event_jets[4][1], "%4.1f" % event_jets[4][2], "%4.1f" % event_jets[4][3], "%4.1f" % event_jets[4][4],  "%.3f" % event_jets[4][5], 
-       "%4.1f" % target[0][0], "%4.1f" % target[0][1], "%4.1f" % target[0][2], "%4.1f" % target[0][3], "%4.1f" % target[0][4],
-       "%4.1f" % target[1][0], "%4.1f" % target[1][1], "%4.1f" % target[1][2], "%4.1f" % target[1][3], "%4.1f" % target[1][4]
+       "%4.1f" % lep.Px(),     "%4.1f" % lep.Py(),     "%4.2f" % lep.Pz(),     "%4.1f" % lep.E(),      "%4.1f" % met_met,      "%.2f" % met_phi,
+       "%4.1f" % sjets[0][0],  "%4.1f" % sjets[0][1],  "%4.2f" % sjets[0][2],  "%4.1f" % sjets[0][3],  "%4.1f" % sjets[0][4],  "%.3f" % sjets[0][5], 
+       "%4.1f" % sjets[1][0],  "%4.1f" % sjets[1][1],  "%4.2f" % sjets[1][2],  "%4.1f" % sjets[1][3],  "%4.1f" % sjets[1][4],  "%.3f" % sjets[1][5], 
+       "%4.1f" % sjets[2][0],  "%4.1f" % sjets[2][1],  "%4.2f" % sjets[2][2],  "%4.1f" % sjets[2][3],  "%4.1f" % sjets[2][4],  "%.3f" % sjets[2][5],
+       "%4.1f" % sjets[3][0],  "%4.1f" % sjets[3][1],  "%4.2f" % sjets[3][2],  "%4.1f" % sjets[3][3],  "%4.1f" % sjets[3][4],  "%.3f" % sjets[3][5], 
+       "%4.1f" % sjets[4][0],  "%4.1f" % sjets[4][1],  "%4.2f" % sjets[4][2],  "%4.1f" % sjets[4][3],  "%4.1f" % sjets[4][4],  "%.3f" % sjets[4][5], 
+       "%4.1f" % target[0][0], "%4.1f" % target[0][1], "%4.2f" % target[0][2], "%4.1f" % target[0][3], "%4.1f" % target[0][4],
+       "%4.1f" % target[1][0], "%4.1f" % target[1][1], "%4.2f" % target[1][2], "%4.1f" % target[1][3], "%4.1f" % target[1][4]
     ) )
 
     n_good += 1

@@ -59,7 +59,7 @@ n_events = len(data)
 X_scaled = X_scaler.transform(X)
 y_scaled = y_scaler.transform(y)
 
-X_scaled = X_scaled.reshape( (n_events, n_jets_per_event, n_features_per_jet) )
+X_scaled = X_scaled.reshape( ( n_events, (1+n_jets_per_event), n_features_per_jet) )
 print "INFO: input shape:", X_scaled.shape
 print "INFO: target shape:", y_scaled.shape
 
@@ -85,26 +85,26 @@ histograms['tb_E']        = TH1F( "tb_E",  ";Anti-top E [GeV]", 50, 0., 1500. )
 histograms['tb_m']        = TH1F( "tb_m", ";Anti-top m [GeV]", 30, 0., 300. )
 
 histograms['corr_t_pt']    = TH2F( "corr_t_pt", ";True Top p_{T} [GeV];Fitted Top p_{T} [GeV]", 50, 0., 1500., 50, 0., 1500. )
-histograms['corr_t_y']     = TH2F( "t_y",       ";True Top y;Fitted Top y", 25, -5., 5., 25, -5., 5. )
-histograms['corr_t_phi']   = TH2F( "t_phi",     ";True Top #phi;Fitted Top #phi", 32, -3.2, 3.2, 32, -3.2, 3.2 )
-histograms['corr_t_E']     = TH2F( "t_E",       ";True Top E [GeV];Fitted Top E [GeV]", 50, 0., 1500., 50, 0., 1500. )
-histograms['corr_t_m']     = TH2F( "t_m",       ";True Top m [GeV];Fitted Top m [GeV]", 30, 0., 300., 30, 0., 300. )
-histograms['corr_tb_pt']   = TH2F( "tb_pt",     ";True Anti-top p_{T} [GeV];Fitted Anti-top p_{T} [GeV]", 50, 0., 1500., 50, 0., 1500. )
-histograms['corr_tb_y']    = TH2F( "tb_y",      ";True Anti-top y;Fitted Anti-top y", 25, -5., 5., 25, -5., 5. )
-histograms['corr_tb_phi']  = TH2F( "tb_phi",    ";True Anti-top #phi;Fitted Anti-top #phi", 32, -3.2, 3.2, 32, -3.2, 3.2 )
-histograms['corr_tb_E']    = TH2F( "tb_E",      ";True Anti-top E [GeV];Fitted Anti-top E [GeV]", 50, 0., 1500., 50, 0., 1500. )
-histograms['corr_tb_m']    = TH2F( "tb_m",      ";True Anti-top m [GeV];Fitted Anti-top m [GeV]", 30, 0., 300., 30, 0., 300. )
+histograms['corr_t_y']     = TH2F( "corr_t_y",       ";True Top y;Fitted Top y", 25, -5., 5., 25, -5., 5. )
+histograms['corr_t_phi']   = TH2F( "corr_t_phi",     ";True Top #phi;Fitted Top #phi", 32, -3.2, 3.2, 32, -3.2, 3.2 )
+histograms['corr_t_E']     = TH2F( "corr_t_E",       ";True Top E [GeV];Fitted Top E [GeV]", 50, 0., 1500., 50, 0., 1500. )
+histograms['corr_t_m']     = TH2F( "corr_t_m",       ";True Top m [GeV];Fitted Top m [GeV]", 30, 0., 300., 30, 0., 300. )
+histograms['corr_tb_pt']   = TH2F( "corr_tb_pt",     ";True Anti-top p_{T} [GeV];Fitted Anti-top p_{T} [GeV]", 50, 0., 1500., 50, 0., 1500. )
+histograms['corr_tb_y']    = TH2F( "corr_tb_y",      ";True Anti-top y;Fitted Anti-top y", 25, -5., 5., 25, -5., 5. )
+histograms['corr_tb_phi']  = TH2F( "corr_tb_phi",    ";True Anti-top #phi;Fitted Anti-top #phi", 32, -3.2, 3.2, 32, -3.2, 3.2 )
+histograms['corr_tb_E']    = TH2F( "corr_tb_E",      ";True Anti-top E [GeV];Fitted Anti-top E [GeV]", 50, 0., 1500., 50, 0., 1500. )
+histograms['corr_tb_m']    = TH2F( "corr_tb_m",      ";True Anti-top m [GeV];Fitted Anti-top m [GeV]", 30, 0., 300., 30, 0., 300. )
     
-histograms['reso_t_pt']   = TH1F( "reso_t_pt",   "Top p_{T} resolution", 100, -5.0, 5.0 )
-histograms['reso_t_y']    = TH1F( "reso_t_y",    "Top y resolution",  100, -5.0, 5.0 )
-histograms['reso_t_phi']  = TH1F( "reso_t_phi",  "Top #phi resolution",  100, -5.0, 5.0 )
-histograms['reso_t_E']    = TH1F( "reso_t_E",    "Top E resolution",     100, -5.0, 5.0 )
-histograms['reso_t_m']    = TH1F( "reso_t_m",    "Top M resolution",     100, -5.0, 5.0 )
-histograms['reso_tb_pt']  = TH1F( "reso_tb_pt",  "Anti-top p_{T} resolution", 100, -5.0, 5.0 )
-histograms['reso_tb_y']   = TH1F( "reso_tb_y",   "Anti-top y resolution",  100, -5.0, 5.0 )
-histograms['reso_tb_phi'] = TH1F( "reso_tb_phi", "Anti-top #phi resolution",  100, -5.0, 5.0 )
-histograms['reso_tb_E']   = TH1F( "reso_tb_E",   "Anti-top E resolution",     100, -5.0, 5.0 )
-histograms['reso_tb_m']   = TH1F( "reso_tb_m",   "Anti-top M resolution",     100, -5.0, 5.0 )
+histograms['reso_t_pt']   = TH1F( "reso_t_pt",   "Top p_{T} resolution", 100, -3.0, 3.0 )
+histograms['reso_t_y']    = TH1F( "reso_t_y",    "Top y resolution",  100, -3.0, 3.0 )
+histograms['reso_t_phi']  = TH1F( "reso_t_phi",  "Top #phi resolution",  100, -3.0, 3.0 )
+histograms['reso_t_E']    = TH1F( "reso_t_E",    "Top E resolution",     100, -3.0, 3.0 )
+histograms['reso_t_m']    = TH1F( "reso_t_m",    "Top M resolution",     100, -3.0, 3.0 )
+histograms['reso_tb_pt']  = TH1F( "reso_tb_pt",  "Anti-top p_{T} resolution", 100, -3.0, 3.0 )
+histograms['reso_tb_y']   = TH1F( "reso_tb_y",   "Anti-top y resolution",  100, -3.0, 3.0 )
+histograms['reso_tb_phi'] = TH1F( "reso_tb_phi", "Anti-top #phi resolution",  100, -3.0, 3.0 )
+histograms['reso_tb_E']   = TH1F( "reso_tb_E",   "Anti-top E resolution",     100, -3.0, 3.0 )
+histograms['reso_tb_m']   = TH1F( "reso_tb_m",   "Anti-top M resolution",     100, -3.0, 3.0 )
 for h in histograms.values(): h.Sumw2()
 
 print "INFO: starting event loop. Found %i events" % n_events
@@ -141,7 +141,7 @@ for i in range(n_events):
         reso_tb_E   = ( tb_fitted.E()   - tb_true.E()   ) / tb_true.E()     #if tb_true.E()    != 0. else -1000.
         reso_tb_m   = ( tb_fitted.M()   - tb_true.M()   ) / tb_true.M()     #if tb_true.M()    != 0. else -1000.
     except:
-        print "WARNING: invalid tops, skipping event ( rn=%-10i en=-10%i )" % ( event_info[i][0], event_info[i][1] )
+        print "WARNING: invalid tops, skipping event ( rn=%-10i en=%-10i )" % ( event_info[i][0], event_info[i][1] )
         continue
 
     histograms['t_pt'].Fill(  t_fitted.Pt(),  w )
@@ -154,6 +154,17 @@ for i in range(n_events):
     histograms['tb_phi'].Fill( tb_fitted.Phi(), w )
     histograms['tb_E'].Fill(   tb_fitted.E(),   w )
     histograms['tb_m'].Fill(   tb_fitted.M(),   w )
+
+    histograms['corr_t_pt'].Fill(   t_true.Pt(),       t_fitted.Pt(),  w )
+    histograms['corr_t_y'].Fill(    t_true.Rapidity(), t_fitted.Rapidity(), w )
+    histograms['corr_t_phi'].Fill(  t_true.Phi(),      t_fitted.Phi(), w )
+    histograms['corr_t_E'].Fill(    t_true.E(),        t_fitted.E(),   w )
+    histograms['corr_t_m'].Fill(    t_true.M(),        t_fitted.M(),   w )
+    histograms['corr_tb_pt'].Fill(  t_true.Pt(),       tb_fitted.Pt(),  w )
+    histograms['corr_tb_y'].Fill(   t_true.Rapidity(), tb_fitted.Rapidity(), w )
+    histograms['corr_tb_phi'].Fill( t_true.Phi(),      tb_fitted.Phi(), w )
+    histograms['corr_tb_E'].Fill(   t_true.E(),        tb_fitted.E(),   w )
+    histograms['corr_tb_m'].Fill(   t_true.M(),        tb_fitted.M(),   w )
     
     histograms['reso_t_pt'].Fill(  reso_t_pt,  w )
     histograms['reso_t_y'].Fill( reso_t_y, w )
@@ -174,7 +185,7 @@ for i in range(n_events):
                 t_true.Pt(),   t_true.Rapidity(),   t_true.Phi(),   t_true.E(),   t_true.M(), \
                 t_fitted.Pt(), t_fitted.Rapidity(), t_fitted.Phi(), t_fitted.E(), t_fitted.M() )
    
-       print "rn=%-10i en=-10%i ) AntiTop  :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
+       print "rn=%-10i en=%-10i ) AntiTop  :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
                ( event_info[i][0], event_info[i][1],
                 tb_true.Pt(),   tb_true.Rapidity(),   tb_true.Phi(),   tb_true.E(),   tb_true.M(), \
                 tb_fitted.Pt(), tb_fitted.Rapidity(), tb_fitted.Phi(), tb_fitted.E(), tb_fitted.M() )
