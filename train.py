@@ -4,6 +4,7 @@ import os, sys
 
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
+from keras.wrappers.scikit_learn import KerasRegressor
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
@@ -28,18 +29,36 @@ callbacks_list = [ early_stopping ]
 training_filename = "csv/training.csv"
 if len(sys.argv) > 1: training_filename = sys.argv[1]
 
-X_scaler = StandardScaler()
-Y_scaler = StandardScaler()
-
 # read in input file
 data = pd.read_csv( training_filename, delimiter=',', names=header )
 
+print "INFO: input features:"
+print input_features
 X_train = data[input_features].values
-X_train_scaled = X_scaler.fit_transform( X_train )
+print "INFO: input four momenta:"
+print X_train
 
 y_train = data[target_features].values
+print "INFO: target features:"
+print target_features
+print "INFO: target top and antitop four momenta:"
+print y_train
+
+event_info = data[['runNumber','eventNumber','weight']].values
+
+#n = len(y_train)
+#for i in range(n):
+#   print event_info[i][0], event_info[i][1], y_train[i][-2], y_train[i][-1]
+#print "dump ok"
+
+# standardize input and target
+X_scaler = StandardScaler()
+Y_scaler = StandardScaler()
+
+X_train_scaled = X_scaler.fit_transform( X_train )
 y_train_scaled = Y_scaler.fit_transform( y_train )
 
+# use event weights?
 mc_weights = None
 #mc_weights = data["weight"].values
 
@@ -53,11 +72,11 @@ dnn = KerasRegressor( build_fn=create_model_rnn, epochs=MAX_EPOCHS, batch_size=B
 
 dnn.fit( X_train_scaled, y_train_scaled )
 
-model_filename = "model.rnn.PxPyPzEMBw.h5" 
+model_filename = "keras/model.rnn.PxPyPzEMBw.h5" 
 dnn.model.save( model_filename )
 print "INFO: model saved to file:  ", model_filename
 
-scaler_filename = "scaler.rnn.PxPyPzEMBw.pkl"
+scaler_filename = "keras/scaler.rnn.PxPyPzEMBw.pkl"
 with open( scaler_filename, "wb" ) as file_scaler:
   pickle.dump( X_scaler, file_scaler )
   pickle.dump( y_scaler, file_scaler )

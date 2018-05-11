@@ -7,8 +7,8 @@ header = [
   "j5_px", "j5_py", "j5_pz", "j5_E", "j5_m", "j5_mv2c10",
   "j6_px", "j6_py", "j6_pz", "j6_E", "j6_m", "j6_mv2c10",
   "j7_px", "j7_py", "j7_pz", "j7_E", "j7_m", "j7_mv2c10",
-  "t_px",    "t_py",    "t_pz",    "t_E",    "t_m", 
-  "tbar_px", "tbar_py", "tbar_pz", "tbar_E", "tbar_m", 
+  "t_px",  "t_py",  "t_pz",  "t_E",  "t_m", 
+  "tb_px", "tb_py", "tb_pz", "tb_E", "tb_m", 
 ]
 
 input_features = [
@@ -22,6 +22,6 @@ input_features = [
 ]
 
 target_features = [
-  "t_px",    "t_py",    "t_pz",    "t_E",    "t_m",
-  "tbar_px", "tbar_py", "tbar_pz", "tbar_E", "tbar_m",
+  "t_px",  "t_py",  "t_pz",  "t_E",  "t_m",
+  "tb_px", "tb_py", "tb_pz", "tb_E", "tb_m",
 ]
