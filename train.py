@@ -49,9 +49,6 @@ print y_train
 event_info = data[['runNumber','eventNumber','weight']].values
 
 n_events = len(y_train)
-#for i in range(n):
-#   print event_info[i][0], event_info[i][1], y_train[i][-2], y_train[i][-1]
-#print "dump ok"
 
 # standardize input and target
 X_scaler = StandardScaler()
@@ -61,7 +58,7 @@ X_train_scaled = X_scaler.fit_transform( X_train )
 y_train_scaled = y_scaler.fit_transform( y_train )
 
 # reshape input
-X_train_scaled = X_train_scaled.reshape( (n_events, n_jets_per_event, n_features_per_jet) )
+X_train_scaled = X_train_scaled.reshape( (n_events, (1+n_jets_per_event), n_features_per_jet) )
 
 print "INFO: input shape:", X_train_scaled.shape
 print "INFO: target shape:", y_train_scaled.shape

@@ -13,7 +13,7 @@ from keras.regularizers import l2
 from features import *
 
 def create_model_rnn( dropout=0 ):
-   inshape   = (n_jets_per_event,n_features_per_jet)
+   inshape   = ( (1+n_jets_per_event), n_features_per_jet )
 
    input = Input( shape=inshape )
 
