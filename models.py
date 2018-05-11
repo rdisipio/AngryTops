@@ -10,7 +10,9 @@ from keras.layers.merge import *
 from keras.optimizers import *
 from keras.regularizers import l2
 
-def create_model_rnn( n_jets_per_event=7, n_features_per_jet=6, n_features_per_top=5, dropout=0 ):
+from features import *
+
+def create_model_rnn( dropout=0 ):
    inshape   = (n_jets_per_event,n_features_per_jet)
 
    input = Input( shape=inshape )
