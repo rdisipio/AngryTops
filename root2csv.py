@@ -107,6 +107,26 @@ for ientry in range(n_entries_reco):
     if t.M() != t.M(): continue
     if tb.M() != tb.M(): continue
 
+    # determine hadronic and leptonic top
+    pid_Wdecay1_from_t    = tree_parton.MC_Wdecay2_from_t_pdgId
+    pid_Wdecay1_from_tbar = tree_parton.MC_Wdecay2_from_tbar_pdgId
+    #print "DEBUG:", pid_Wdecay1_from_t, pid_Wdecay1_from_tbar
+    
+    t_had = None
+    t_lep = None
+    if abs(pid_Wdecay1_from_t) < 10:
+       t_had = TLorentzVector(t)
+    else:
+       t_lep = TLorentzVector(t)
+
+    if abs(pid_Wdecay1_from_tbar) < 10:
+       t_had = TLorentzVector(tb)
+    else:
+       t_lep = TLorentzVector(tb)
+       
+    if t_had == None or t_lep == None:
+      continue
+    
     # make event wrapper
     sjets = np.zeros( [ n_jets_per_event, n_features_per_jet ] )
 
@@ -119,17 +139,20 @@ for ientry in range(n_entries_reco):
         sjets[i][4] = jet.M()/GeV
         sjets[i][5] = jet.mv2c10
 
-    target = np.zeros( [ 2, 5 ] )
-    target[0][0] = t.Px()/GeV
-    target[0][1] = t.Py()/GeV
-    target[0][2] = t.Pz()/GeV
-    target[0][3] = t.E()/GeV
-    target[0][4] = t.M()/GeV
-    target[1][0] = tb.Px()/GeV
-    target[1][1] = tb.Py()/GeV
-    target[1][2] = tb.Pz()/GeV
-    target[1][3] = tb.E()/GeV
-    target[1][4] = tb.M()/GeV
+    target_had = np.zeros( [5] )
+    target_lep = np.zeros( [5] )
+     
+    target_had[0] = t_had.Px()/GeV
+    target_had[1] = t_had.Py()/GeV
+    target_had[2] = t_had.Pz()/GeV
+    target_had[3] = t_had.E()/GeV
+    target_had[4] = t_had.M()/GeV
+    
+    target_lep[0] = t_lep.Px()/GeV
+    target_lep[1] = t_lep.Py()/GeV
+    target_lep[2] = t_lep.Pz()/GeV
+    target_lep[3] = t_lep.E()/GeV
+    target_lep[4] = t_lep.M()/GeV
 
     # write out
     csvwriter.writerow( (
@@ -140,8 +163,8 @@ for ientry in range(n_entries_reco):
        "%.3f" % sjets[2][0],  "%.3f" % sjets[2][1],  "%.3f" % sjets[2][2],  "%.3f" % sjets[2][3],  "%.3f" % sjets[2][4],  "%.3f" % sjets[2][5],
        "%.3f" % sjets[3][0],  "%.3f" % sjets[3][1],  "%.3f" % sjets[3][2],  "%.3f" % sjets[3][3],  "%.3f" % sjets[3][4],  "%.3f" % sjets[3][5], 
        "%.3f" % sjets[4][0],  "%.3f" % sjets[4][1],  "%.3f" % sjets[4][2],  "%.3f" % sjets[4][3],  "%.3f" % sjets[4][4],  "%.3f" % sjets[4][5], 
-       "%.3f" % target[0][0], "%.3f" % target[0][1], "%.3f" % target[0][2], "%.3f" % target[0][3], "%.3f" % target[0][4],
-       "%.3f" % target[1][0], "%.3f" % target[1][1], "%.3f" % target[1][2], "%.3f" % target[1][3], "%.3f" % target[1][4]
+       "%.3f" % target_had[0], "%.3f" % target_had[1], "%.3f" % target_had[2], "%.3f" % target_had[3], "%.3f" % target_had[4],
+       "%.3f" % target_lep[0], "%.3f" % target_lep[1], "%.3f" % target_lep[2], "%.3f" % target_lep[3], "%.3f" % target_lep[4]
     ) )
 
     n_good += 1

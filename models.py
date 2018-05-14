@@ -25,7 +25,7 @@ def create_model_rnn( dropout=0 ):
    x = Dense(30)(x)
    x = Dense(20)(x)
    
-   output = Dense( 2*n_features_per_top )(x)
+   output = Dense( n_features_per_top )(x)
 
    model = Model(inputs=[input], outputs=[output] )
 

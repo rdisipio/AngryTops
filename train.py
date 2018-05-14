@@ -40,6 +40,9 @@ X_train = data[input_features].values
 print "INFO: input four momenta:"
 print X_train
 
+target_features = target_features_t_had
+#target_features = target_features_t_lep
+#target_features = target_features_ttbar
 y_train = data[target_features].values
 print "INFO: target features:"
 print target_features
