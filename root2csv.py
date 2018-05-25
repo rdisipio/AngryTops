@@ -57,10 +57,25 @@ for ientry in range(n_entries_reco):
         perc = 100. * ientry / float(n_entries_reco)
         print "INFO: Event %-9i  (%3.0f %%)" % ( ientry, perc )
 
-    passed_ejets  = tree_reco.passed_resolved_ejets_4j2b_2015 or tree_reco.passed_resolved_ejets_4j2b_2016
-    passed_mujets = tree_reco.passed_resolved_mujets_4j2b_2015 or tree_reco.passed_resolved_mujets_4j2b_2016
-    accepted = passed_ejets or passed_mujets
-    if not accepted: continue
+    el_n    = len(tree_reco.el_pt)
+    mu_n    = len(tree_reco.mu_pt)
+    lep_n   = el_n + mu_n 
+    jets_n  = len(tree_reco.jet_pt)
+    bjets_n = 0
+    
+    if lep_n > 1: continue
+    if jets_n < 4: continue
+
+    passed_ejets  = False
+    passed_mujets = False
+    if   (el_n == 1) and (mu_n == 0): passed_ejets = True
+    elif (el_n == 0) and (mu_n == 1): passed_mujets = True
+    else: continue
+    
+    #passed_ejets  = tree_reco.passed_resolved_ejets_4j2b_2015 or tree_reco.passed_resolved_ejets_4j2b_2016
+    #passed_mujets = tree_reco.passed_resolved_mujets_4j2b_2015 or tree_reco.passed_resolved_mujets_4j2b_2016
+    #accepted = passed_ejets or passed_mujets
+    #if not accepted: continue
 
     mcChannelNumber = tree_reco.mcChannelNumber
     runNumber       = tree_reco.runNumber
@@ -79,7 +94,6 @@ for ientry in range(n_entries_reco):
     met_met = tree_reco.met_met/GeV
     met_phi = tree_reco.met_phi
     
-    jets_n = len(tree_reco.jet_pt)
     jets = []
     for i in range(jets_n):
         if i >= n_jets_per_event: break
@@ -89,6 +103,9 @@ for ientry in range(n_entries_reco):
         j.index = i
         j.SetPtEtaPhiE( tree_reco.jet_pt[i], tree_reco.jet_eta[i], tree_reco.jet_phi[i], tree_reco.jet_e[i] )
         j.mv2c10 = tree_reco.jet_mv2c10[i]
+        if j.mv2c10 > 0.83: bjets_n += 1
+
+    jets.sort( key=lambda jet: jet.mv2c10, reverse=True )
         
     t = TLorentzVector()
     t.SetPtEtaPhiM( tree_parton.MC_t_afterFSR_pt,
@@ -156,7 +173,7 @@ for ientry in range(n_entries_reco):
 
     # write out
     csvwriter.writerow( (
-       "%i" % tree_reco.runNumber, "%i" % tree_reco.eventNumber, "%.3f" % weight,
+       "%i" % tree_reco.runNumber, "%i" % tree_reco.eventNumber, "%.3f" % weight, "%i" % jets_n, "%i" % bjets_n,
        "%.3f" % lep.Px(),     "%.3f" % lep.Py(),     "%.3f" % lep.Pz(),     "%.3f" % lep.E(),      "%.3f" % met_met,      "%.3f" % met_phi,
        "%.3f" % sjets[0][0],  "%.3f" % sjets[0][1],  "%.3f" % sjets[0][2],  "%.3f" % sjets[0][3],  "%.3f" % sjets[0][4],  "%.3f" % sjets[0][5], 
        "%.3f" % sjets[1][0],  "%.3f" % sjets[1][1],  "%.3f" % sjets[1][2],  "%.3f" % sjets[1][3],  "%.3f" % sjets[1][4],  "%.3f" % sjets[1][5], 
