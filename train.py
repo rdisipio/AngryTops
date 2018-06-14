@@ -97,7 +97,7 @@ dnn = KerasRegressor( build_fn=models.create_model_multi,
 
 #dnn.fit( [ X_train_t_lep,X_train_t_had], y_train,
 dnn.fit( { 'jets_input':X_jets, 'lepton_input':X_lepton },
-         { 'W_lep_out':y_W_lep, 'W_had_out':y_W_had, 't_lep_out':y_t_lep, 't_had_out':y_t_had,
+         { 'W_lep_out':y_W_lep, 'W_had_out':y_W_had, 't_lep_out':y_t_lep, 't_had_out':y_t_had},
          validation_split=0.10, shuffle=True,
          callbacks=callbacks_list,
          sample_weight=mc_weights,  
