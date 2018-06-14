@@ -91,15 +91,15 @@ event_info = data[features_event_info].values
 
 n_events = len(data)
 
-X_t_lep_scaled = X_t_lep_scaler.transform(X_t_lep)
-X_t_had_scaled = X_t_had_scaler.transform(X_t_had)
+#X_t_lep = X_t_lep_scaler.transform(X_t_lep)
+#X_t_had = X_t_had_scaler.transform(X_t_had)
 
-X_t_lep_scaled = X_t_lep_scaled.reshape( n_events, models.n_rows_t_lep, models.n_cols_t_lep )
-X_t_had_scaled = X_t_had_scaled.reshape( n_events, models.n_rows_t_had, models.n_cols_t_had )
+X_t_lep = X_t_lep.reshape( n_events, models.n_rows_t_lep, models.n_cols_t_lep )
+X_t_had = X_t_had.reshape( n_events, models.n_rows_t_had, models.n_cols_t_had )
 
 
-y_fitted = dnn.predict( [ X_t_lep_scaled, X_t_had_scaled ] )
-y_fitted = y_scaler.inverse_transform( y_fitted )
+y_fitted = dnn.predict( [ X_t_lep, X_t_had ] )
+#y_fitted = y_scaler.inverse_transform( y_fitted )
 
 # open output file
 ofilename = "output/testing.root"

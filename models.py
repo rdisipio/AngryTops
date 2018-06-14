@@ -86,3 +86,48 @@ def create_model_rnn():
    model.compile( optimizer='adam', loss='mean_squared_error' )
 
    return model
+
+
+def create_model_multi():
+   print "INFO: building model: (W_lep,W_had,t_lep,t_had)"
+
+   input_jets = Input( shape=(5,6), name='jets_input' )
+   input_lep  = Input( shape=(6,), name='lepton_input' )
+
+   x_W_had = LSTM( 50, return_sequences=True)(input_jets)
+   x_W_had = LSTM( 50, return_sequences=False)(x_W_had)
+   x_W_had = Dense(30)(x_W_had)
+   x_W_had_out = Dense(3, name='W_had_out')(x_W_had)
+
+   x_W_lep = LSTM( 50, return_sequences=True)(input_jets)
+   x_W_lep = LSTM( 50, return_sequences=False)(x_W_lep)
+   x_W_lep = Dense(30)(x_W_lep)
+   x_W_lep = Dense(3)(x_W_lep)
+   x_W_lep = concatenate( [ x_W_lep, input_lep ] )
+   x_W_lep = Dense(10)(x_W_lep)
+   x_W_lep = Dense(6)(x_W_lep)
+   x_W_lep_out = Dense(3, name='W_lep_out')(x_W_lep)
+
+   x_t_had = LSTM( 50, return_sequences=True)(input_jets)
+   x_t_had = LSTM( 50, return_sequences=False)(x_t_had)
+   x_t_had = Dense(30)(x_t_had)
+   x_t_had = Dense(3)(x_t_had)
+   x_t_had = concatenate( [ x_t_had, x_W_had ] )
+   x_t_had = Dense(10)(x_t_had)
+   x_t_had = Dense(6)(x_t_had)
+   x_t_had_out = Dense(3, name='t_had_out')(x_t_had)
+
+   x_t_lep = LSTM( 50, return_sequences=True)(input_jets)
+   x_t_lep = LSTM( 50, return_sequences=False)(x_t_lep)
+   x_t_lep = Dense(30)(x_t_lep)
+   x_t_lep = Dense(3)(x_t_lep)
+   x_t_lep = concatenate( [ x_t_lep, x_W_lep ] )
+   x_t_lep = Dense(10)(x_t_lep)
+   x_t_lep = Dense(6)(x_t_lep)
+   x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
+
+   model = Model(inputs=[input_jets,input_lep], outputs=[x_W_lep_out, x_W_had_out, x_t_lep_out, x_t_had_out] )
+
+   model.compile( optimizer='adam', loss='mean_squared_error' )
+
+   return model

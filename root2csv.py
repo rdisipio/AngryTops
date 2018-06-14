@@ -115,9 +115,21 @@ for ientry in range(n_entries_reco):
     
     tb =  TLorentzVector()
     tb.SetPtEtaPhiM( tree_parton.MC_tbar_afterFSR_pt,
-                       tree_parton.MC_tbar_afterFSR_eta,
-                       tree_parton.MC_tbar_afterFSR_phi,
-                       tree_parton.MC_tbar_afterFSR_m )
+                     tree_parton.MC_tbar_afterFSR_eta,
+                     tree_parton.MC_tbar_afterFSR_phi,
+                     tree_parton.MC_tbar_afterFSR_m )
+
+    W_from_t = TLorentzVector() 
+    W_from_t.SetPtEtaPhiM( tree_parton.MC_W_from_t_pt,
+                           tree_parton.MC_W_from_t_eta,
+                           tree_parton.MC_W_from_t_phi,
+                           tree_parton.MC_W_from_t_m )
+
+    W_from_tb = TLorentzVector()
+    W_from_tb.SetPtEtaPhiM( tree_parton.MC_W_from_tbar_pt,
+                            tree_parton.MC_W_from_tbar_eta,
+                            tree_parton.MC_W_from_tbar_phi,
+                            tree_parton.MC_W_from_tbar_m )
 
     if t.Pt() == 0.: continue
     if tb.Pt() == 0.: continue
@@ -131,15 +143,21 @@ for ientry in range(n_entries_reco):
     
     t_had = None
     t_lep = None
+    W_had = None
+    W_lep = None
     if abs(pid_Wdecay1_from_t) < 10:
+       W_had = TLorentzVector(W_from_t)
        t_had = TLorentzVector(t)
     else:
        t_lep = TLorentzVector(t)
+       W_lep = TLorentzVector(W_from_t)
 
     if abs(pid_Wdecay1_from_tbar) < 10:
        t_had = TLorentzVector(tb)
+       W_had = TLorentzVector(W_from_tb)
     else:
        t_lep = TLorentzVector(tb)
+       W_lep = TLorentzVector(W_from_tb)
        
     if t_had == None or t_lep == None:
       continue
@@ -156,20 +174,34 @@ for ientry in range(n_entries_reco):
         sjets[i][4] = jet.M()/GeV
         sjets[i][5] = jet.mv2c10
 
-    target_had = np.zeros( [5] )
-    target_lep = np.zeros( [5] )
-     
-    target_had[0] = t_had.Px()/GeV
-    target_had[1] = t_had.Py()/GeV
-    target_had[2] = t_had.Pz()/GeV
-    target_had[3] = t_had.E()/GeV
-    target_had[4] = t_had.M()/GeV
+    target_t_had = np.zeros( [5] )
+    target_t_lep = np.zeros( [5] )
+    target_W_had = np.zeros( [5] )
+    target_W_lep = np.zeros( [5] )     
+
+    target_t_had[0] = t_had.Px()/GeV
+    target_t_had[1] = t_had.Py()/GeV
+    target_t_had[2] = t_had.Pz()/GeV
+    target_t_had[3] = t_had.E()/GeV
+    target_t_had[4] = t_had.M()/GeV
     
-    target_lep[0] = t_lep.Px()/GeV
-    target_lep[1] = t_lep.Py()/GeV
-    target_lep[2] = t_lep.Pz()/GeV
-    target_lep[3] = t_lep.E()/GeV
-    target_lep[4] = t_lep.M()/GeV
+    target_t_lep[0] = t_lep.Px()/GeV
+    target_t_lep[1] = t_lep.Py()/GeV
+    target_t_lep[2] = t_lep.Pz()/GeV
+    target_t_lep[3] = t_lep.E()/GeV
+    target_t_lep[4] = t_lep.M()/GeV
+
+    target_W_had[0] = W_had.Px()/GeV
+    target_W_had[1] = W_had.Py()/GeV
+    target_W_had[2] = W_had.Pz()/GeV
+    target_W_had[3] = W_had.E()/GeV
+    target_W_had[4] = W_had.M()/GeV
+
+    target_W_lep[0] = W_lep.Px()/GeV
+    target_W_lep[1] = W_lep.Py()/GeV
+    target_W_lep[2] = W_lep.Pz()/GeV
+    target_W_lep[3] = W_lep.E()/GeV
+    target_W_lep[4] = W_lep.M()/GeV
 
     # write out
     csvwriter.writerow( (
@@ -180,8 +212,10 @@ for ientry in range(n_entries_reco):
        "%.3f" % sjets[2][0],  "%.3f" % sjets[2][1],  "%.3f" % sjets[2][2],  "%.3f" % sjets[2][3],  "%.3f" % sjets[2][4],  "%.3f" % sjets[2][5],
        "%.3f" % sjets[3][0],  "%.3f" % sjets[3][1],  "%.3f" % sjets[3][2],  "%.3f" % sjets[3][3],  "%.3f" % sjets[3][4],  "%.3f" % sjets[3][5], 
        "%.3f" % sjets[4][0],  "%.3f" % sjets[4][1],  "%.3f" % sjets[4][2],  "%.3f" % sjets[4][3],  "%.3f" % sjets[4][4],  "%.3f" % sjets[4][5], 
-       "%.3f" % target_had[0], "%.3f" % target_had[1], "%.3f" % target_had[2], "%.3f" % target_had[3], "%.3f" % target_had[4],
-       "%.3f" % target_lep[0], "%.3f" % target_lep[1], "%.3f" % target_lep[2], "%.3f" % target_lep[3], "%.3f" % target_lep[4]
+       "%.3f" % target_W_had[0], "%.3f" % target_W_had[1], "%.3f" % target_W_had[2], "%.3f" % target_W_had[3], "%.3f" % target_W_had[4],
+       "%.3f" % target_W_lep[0], "%.3f" % target_W_lep[1], "%.3f" % target_W_lep[2], "%.3f" % target_W_lep[3], "%.3f" % target_W_lep[4],
+       "%.3f" % target_t_had[0], "%.3f" % target_t_had[1], "%.3f" % target_t_had[2], "%.3f" % target_t_had[3], "%.3f" % target_t_had[4],
+       "%.3f" % target_t_lep[0], "%.3f" % target_t_lep[1], "%.3f" % target_t_lep[2], "%.3f" % target_t_lep[3], "%.3f" % target_t_lep[4]
     ) )
 
     n_good += 1
