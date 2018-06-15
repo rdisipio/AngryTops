@@ -132,24 +132,12 @@ def create_model_multi():
    
    x_t_lep  = add( [ x_W_lep_out, x_b_lep_out ] )
    x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
-   
-   
-   #x_t_had = LSTM( 50, return_sequences=True)(input_jets)
-   #x_t_had = LSTM( 10, return_sequences=False)(x_t_had)
-   #x_t_had = concatenate( [ x_t_had, x_W_had ] )
-   #x_t_had = Dense(10)(x_t_had)
-   #x_t_had = Dense(6)(x_t_had)
-   #x_t_had_out = Dense(3, name='t_had_out')(x_t_had)
 
-   #x_t_lep = LSTM( 50, return_sequences=True)(input_jets)
-   #x_t_lep = LSTM( 10, return_sequences=False)(x_t_lep)
-   #x_t_lep = concatenate( [ x_t_lep, x_W_lep ] )
-   #x_t_lep = Dense(10)(x_t_lep)
-   #x_t_lep = Dense(6)(x_t_lep)
-   #x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
-
-   model = Model(inputs=[input_jets,input_lep],
-                 outputs=[x_W_lep_out, x_W_had_out, x_b_lep_out, x_b_had_out, x_t_lep_out, x_t_had_out] )
+   model = Model(inputs=[input_jets,
+                         input_lep],
+                 outputs=[x_W_lep_out, x_W_had_out,
+                          x_b_lep_out, x_b_had_out,
+                          x_t_lep_out, x_t_had_out] )
 
    model.compile( optimizer='adam', loss='mean_squared_error' )
 
