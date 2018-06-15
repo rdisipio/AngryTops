@@ -88,6 +88,7 @@ n_rows_t_had = n_jets_per_event
 n_rows_t_lep = 4
 n_rows_ttbar = n_jets_per_event + 1
 n_features_per_jet = 6 # (px, py, pz, E, M, bw )
+n_features_lepton  = 6 # (px, py, pz, E, met_et, met_phi )
 n_features_per_top = len(target_features_t_had) # (px, py, pz, E )
 #n_target_features_t_had = len(target_features_t_had)
 #n_target_features_t_lep = len(target_feature_t_lep)

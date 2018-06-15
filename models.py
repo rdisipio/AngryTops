@@ -91,10 +91,13 @@ def create_model_rnn():
 def create_model_multi():
    print "INFO: building model: (W_lep,W_had,t_lep,t_had)"
 
-   input_jets = Input( shape=(5,6), name='jets_input' )
-   input_lep  = Input( shape=(6,), name='lepton_input' )
+   shape_jets = (n_jets_per_event,n_features_per_jet)
+   shape_lep  = (n_features_lepton,)
+   
+   input_jets = Input( shape=shape_jets, name='jets_input' )
+   input_lep  = Input( shape=shape_lep,  name='lepton_input' )
 
-   x_W_had = TimeDistributed( Dense(100), input_shape=(5,6) )(input_jets)
+   x_W_had = TimeDistributed( Dense(100), input_shape=shape_jets )(input_jets)
    x_W_had = LSTM( 100, return_sequences=True)(x_W_had)
    x_W_had = LSTM(  50, return_sequences=False)(x_W_had)
    x_W_had = Dense( 30, activation="elu")(x_W_had)

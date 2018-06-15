@@ -57,6 +57,8 @@ X_lepton = data[input_features_lep].values
 
 y_W_lep = data[target_features_W_lep].values
 y_W_had = data[target_features_W_had].values
+y_b_lep = data[target_features_b_lep].values
+y_b_had = data[target_features_b_had].values
 y_t_lep = data[target_features_t_lep].values
 y_t_had = data[target_features_t_had].values
 

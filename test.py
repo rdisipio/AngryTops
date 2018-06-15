@@ -2,7 +2,9 @@
 
 GeV = 1e3
 TeV = 1e6
-Mtop = 172.5
+m_t = 172.5
+m_W = 80.4
+m_b = 4.95
 
 import os, sys, time
 import argparse
@@ -22,28 +24,18 @@ import models
 
 ################
 
-def MakeTopsP4( y ):
-  t_lep = TLorentzVector()
-  t_had = TLorentzVector()
+def MakeP4( y, m=0. ):
+  p4 = TLorentzVector()
 
-  px_lep = y[0]
-  py_lep = y[1]
-  pz_lep = y[2]
-  px_had = y[3]
-  py_had = y[4]
-  pz_had = y[5]
-
-  # E^2 - P^2 = M^2 => E^2 = P^2 + M^2
-  P_lep = TMath.Sqrt( px_lep*px_lep + py_lep*py_lep + pz_lep*pz_lep )
-  E_lep = TMath.Sqrt( P_lep*P_lep + Mtop*Mtop )
+  px = y[0]
+  py = y[1]
+  pz = y[2]
+  P2 = px*px + py*py + pz*pz
+  E  = TMath.Sqrt( P2 + m*m )
   
-  P_had = TMath.Sqrt( px_had*px_had + py_had*py_had + pz_had*pz_had )
-  E_had = TMath.Sqrt( P_had*P_had + Mtop*Mtop )
+  p4.SetPxPyPzE( px, py, pz, E )
+  return p4
 
-  t_lep.SetPxPyPzE( px_lep, py_lep, pz_lep, E_lep )
-  t_had.SetPxPyPzE( px_had, py_had, pz_had, E_had )
-
-  return t_lep, t_had
 
 ###############
 
@@ -70,36 +62,29 @@ with open( scaler_filename, "rb" ) as file_scaler:
 # read in input file
 data = pd.read_csv( infilename, delimiter=',', names=header )
 
-input_features_t_lep  = input_features_t_lep
-input_features_t_had  = input_features_t_had
-models.n_cols_t_lep   = n_features_per_jet
-models.n_rows_t_lep   = n_rows_t_lep
-models.n_cols_t_had   = n_features_per_jet
-models.n_rows_t_had   = n_rows_t_had
+X_jets   = data[input_features_jets].values
+X_lepton = data[input_features_lep].values
 
-target_features          = target_features_ttbar
-models.n_target_features = len(target_features)
-
-#print "INFO: input features:"
-#print input_features
-
-X_t_lep = data[input_features_t_lep].values
-X_t_had = data[input_features_t_had].values
-y_true  = data[target_features].values
+y_true_W_lep = data[target_features_W_lep].values
+y_true_W_had = data[target_features_W_had].values
+y_true_b_lep = data[target_features_b_lep].values
+y_true_b_had = data[target_features_b_had].values
+y_true_t_lep = data[target_features_t_lep].values
+y_true_t_had = data[target_features_t_had].values
 
 event_info = data[features_event_info].values
+n_events   = len(event_info)
 
-n_events = len(data)
+X_jets   = X_jets.reshape( (n_events,n_jets_per_event,n_features_per_jet) )
 
-#X_t_lep = X_t_lep_scaler.transform(X_t_lep)
-#X_t_had = X_t_had_scaler.transform(X_t_had)
-
-X_t_lep = X_t_lep.reshape( n_events, models.n_rows_t_lep, models.n_cols_t_lep )
-X_t_had = X_t_had.reshape( n_events, models.n_rows_t_had, models.n_cols_t_had )
-
-
-y_fitted = dnn.predict( [ X_t_lep, X_t_had ] )
+print "INFO: fitting ttbar decay chain..."
+y_fitted = dnn.predict( { 'jets_input':X_jets, 'lepton_input':X_lepton } )
 #y_fitted = y_scaler.inverse_transform( y_fitted )
+print "INFO ...done"
+
+#print "INFO: shape of fitted particles:", y_fitted.shape
+#y_fitted = y_fitted.reshape( (4, 3) )
+#print y_fitted
 
 # open output file
 ofilename = "output/testing.root"
@@ -111,11 +96,35 @@ ofile.cd()
 histograms = {}
 
 # basic distributions
+histograms['W_had_pt']       = TH1F( "W_had_pt",  ";Hadronic W p_{T} [GeV]", 50, 0., 1500. )
+histograms['W_had_y']        = TH1F( "W_had_y",   ";Hadronic W #eta", 25, -5., 5. )
+histograms['W_had_phi']      = TH1F( "W_had_phi", ";Hadronic W #phi", 32, -3.2, 3.2 )
+histograms['W_had_E']        = TH1F( "W_had_E",   ";Hadronic W E [GeV]", 50, 0., 1500. )
+histograms['W_had_m']        = TH1F( "W_had_m",   ";Hadronic W m [GeV]", 30, 0., 300.  )
+
+histograms['b_had_pt']       = TH1F( "b_had_pt",  ";Hadronic b p_{T} [GeV]", 50, 0., 1500. )
+histograms['b_had_y']        = TH1F( "b_had_y",   ";Hadronic b #eta", 25, -5., 5. )
+histograms['b_had_phi']      = TH1F( "b_had_phi", ";Hadronic b #phi", 32, -3.2, 3.2 )
+histograms['b_had_E']        = TH1F( "b_had_E",   ";Hadronic b E [GeV]", 50, 0., 1500. )
+histograms['b_had_m']        = TH1F( "b_had_m",   ";Hadronic b m [GeV]", 30, 0., 300.  )
+
 histograms['t_had_pt']       = TH1F( "t_had_pt",  ";Hadronic top p_{T} [GeV]", 50, 0., 1500. )
 histograms['t_had_y']        = TH1F( "t_had_y",   ";Hadronic top #eta", 25, -5., 5. )
 histograms['t_had_phi']      = TH1F( "t_had_phi", ";Hadronic top #phi", 32, -3.2, 3.2 )
 histograms['t_had_E']        = TH1F( "t_had_E",   ";Hadronic top E [GeV]", 50, 0., 1500. )
 histograms['t_had_m']        = TH1F( "t_had_m",   ";Hadronic top m [GeV]", 30, 0., 300.  )
+
+histograms['W_lep_pt']       = TH1F( "W_lep_pt",   ";Leptonic W p_{T} [GeV]", 50, 0., 1500. )
+histograms['W_lep_y']        = TH1F( "W_lep_y",    ";Leptonic W #eta", 25, -5., 5. )
+histograms['W_lep_phi']      = TH1F( "W_lep_phi",  ";Leptonic W #phi", 32, -3.2, 3.2 )
+histograms['W_lep_E']        = TH1F( "W_lep_E",    ";Leptonic W E [GeV]", 50, 0., 1500. )
+histograms['W_lep_m']        = TH1F( "W_lep_m",    ";Leptonic W m [GeV]", 30, 0., 300. )
+
+histograms['b_lep_pt']       = TH1F( "b_lep_pt",   ";Leptonic b p_{T} [GeV]", 50, 0., 1500. )
+histograms['b_lep_y']        = TH1F( "b_lep_y",    ";Leptonic b #eta", 25, -5., 5. )
+histograms['b_lep_phi']      = TH1F( "b_lep_phi",  ";Leptonic b #phi", 32, -3.2, 3.2 )
+histograms['b_lep_E']        = TH1F( "b_lep_E",    ";Leptonic b E [GeV]", 50, 0., 1500. )
+histograms['b_lep_m']        = TH1F( "b_lep_m",    ";Leptonic b m [GeV]", 30, 0., 300. )
 
 histograms['t_lep_pt']       = TH1F( "t_lep_pt",   ";Leptonic top p_{T} [GeV]", 50, 0., 1500. )
 histograms['t_lep_y']        = TH1F( "t_lep_y",    ";Leptonic top #eta", 25, -5., 5. )
@@ -137,6 +146,24 @@ histograms['corr_t_lep_E']     = TH2F( "corr_t_lep_E",      ";True Leptonic top 
 histograms['corr_t_lep_m']     = TH2F( "corr_t_lep_m",      ";True Leptonic top m [GeV];Fitted Leptonic top m [GeV]", 25, 170., 175., 20, 150., 250. )
 
 # resolution
+histograms['reso_W_had_px']   = TH1F( "reso_W_had_px",   ";Hadronic W p_{x} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_had_py']   = TH1F( "reso_W_had_py",   ";Hadronic W p_{y} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_had_pz']   = TH1F( "reso_W_had_pz",   ";Hadronic W p_{z} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_had_pt']   = TH1F( "reso_W_had_pt",   ";Hadronic W p_{T} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_had_y']    = TH1F( "reso_W_had_y",    ";Hadronic W y resolution",     100, -3.0, 3.0 )
+histograms['reso_W_had_phi']  = TH1F( "reso_W_had_phi",  ";Hadronic W #phi resolution",  100, -3.0, 3.0 )
+histograms['reso_W_had_E']    = TH1F( "reso_W_had_E",    ";Hadronic W E resolution",     100, -3.0, 3.0 )
+histograms['reso_W_had_m']    = TH1F( "reso_W_had_m",    ";Hadronic W M resolution",     100, -3.0, 3.0 )
+
+histograms['reso_b_had_px']   = TH1F( "reso_b_had_px",   ";Hadronic b p_{x} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_had_py']   = TH1F( "reso_b_had_py",   ";Hadronic b p_{y} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_had_pz']   = TH1F( "reso_b_had_pz",   ";Hadronic b p_{z} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_had_pt']   = TH1F( "reso_b_had_pt",   ";Hadronic b p_{T} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_had_y']    = TH1F( "reso_b_had_y",    ";Hadronic b y resolution",     100, -3.0, 3.0 )
+histograms['reso_b_had_phi']  = TH1F( "reso_b_had_phi",  ";Hadronic b #phi resolution",  100, -3.0, 3.0 )
+histograms['reso_b_had_E']    = TH1F( "reso_b_had_E",    ";Hadronic b E resolution",     100, -3.0, 3.0 )
+histograms['reso_b_had_m']    = TH1F( "reso_b_had_m",    ";Hadronic b M resolution",     100, -3.0, 3.0 )
+
 histograms['reso_t_had_px']   = TH1F( "reso_t_had_px",   ";Hadronic top p_{x} resolution", 100, -3.0, 3.0 )
 histograms['reso_t_had_py']   = TH1F( "reso_t_had_py",   ";Hadronic top p_{y} resolution", 100, -3.0, 3.0 )
 histograms['reso_t_had_pz']   = TH1F( "reso_t_had_pz",   ";Hadronic top p_{z} resolution", 100, -3.0, 3.0 )
@@ -145,6 +172,24 @@ histograms['reso_t_had_y']    = TH1F( "reso_t_had_y",    ";Hadronic top y resolu
 histograms['reso_t_had_phi']  = TH1F( "reso_t_had_phi",  ";Hadronic top #phi resolution",  100, -3.0, 3.0 )
 histograms['reso_t_had_E']    = TH1F( "reso_t_had_E",    ";Hadronic top E resolution",     100, -3.0, 3.0 )
 histograms['reso_t_had_m']    = TH1F( "reso_t_had_m",    ";Hadronic top M resolution",     100, -3.0, 3.0 )
+
+histograms['reso_W_lep_px']  = TH1F( "reso_W_lep_px",  ";Leptonic W p_{x} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_lep_py']  = TH1F( "reso_W_lep_py",  ";Leptonic W p_{y} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_lep_pz']  = TH1F( "reso_W_lep_pz",  ";Leptonic W p_{z} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_lep_pt']  = TH1F( "reso_W_lep_pt",  ";Leptonic W p_{T} resolution", 100, -3.0, 3.0 )
+histograms['reso_W_lep_y']   = TH1F( "reso_W_lep_y",   ";Leptonic W y resolution",  100, -3.0, 3.0 )
+histograms['reso_W_lep_phi'] = TH1F( "reso_W_lep_phi", ";Leptonic W #phi resolution",  100, -3.0, 3.0 )
+histograms['reso_W_lep_E']   = TH1F( "reso_W_lep_E",   ";Leptonic W E resolution",     100, -3.0, 3.0 )
+histograms['reso_W_lep_m']   = TH1F( "reso_W_lep_m",   ";Leptonic W M resolution",     100, -3.0, 3.0 )
+
+histograms['reso_b_lep_px']  = TH1F( "reso_b_lep_px",  ";Leptonic b p_{x} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_lep_py']  = TH1F( "reso_b_lep_py",  ";Leptonic b p_{y} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_lep_pz']  = TH1F( "reso_b_lep_pz",  ";Leptonic b p_{z} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_lep_pt']  = TH1F( "reso_b_lep_pt",  ";Leptonic b p_{T} resolution", 100, -3.0, 3.0 )
+histograms['reso_b_lep_y']   = TH1F( "reso_b_lep_y",   ";Leptonic b y resolution",  100, -3.0, 3.0 )
+histograms['reso_b_lep_phi'] = TH1F( "reso_b_lep_phi", ";Leptonic b #phi resolution",  100, -3.0, 3.0 )
+histograms['reso_b_lep_E']   = TH1F( "reso_b_lep_E",   ";Leptonic b E resolution",     100, -3.0, 3.0 )
+histograms['reso_b_lep_m']   = TH1F( "reso_b_lep_m",   ";Leptonic b M resolution",     100, -3.0, 3.0 )
 
 histograms['reso_t_lep_px']  = TH1F( "reso_t_lep_px",  ";Leptonic top p_{x} resolution", 100, -3.0, 3.0 )
 histograms['reso_t_lep_py']  = TH1F( "reso_t_lep_py",  ";Leptonic top p_{y} resolution", 100, -3.0, 3.0 )
@@ -170,20 +215,43 @@ for i in range(n_events):
     jets_n  = event_info[i][3]
     bjets_n = event_info[i][4]
 
-    t_had_true,   t_lep_true   = MakeTopsP4( y_true[i] )
-    t_had_fitted, t_lep_fitted = MakeTopsP4( y_fitted[i] )
+    W_lep_true   = MakeP4( y_true_W_lep[i], m_W )
+    W_lep_fitted = MakeP4( y_fitted[0][i],  m_W )
 
-#    t_had_true    = TLorentzVector()
-#    t_had_fitted  = TLorentzVector()
-#    t_had_true.SetPxPyPzE(   y_true[i][0], y_true[i][1], y_true[i][2], y_true[i][3] )
-#    t_had_fitted.SetPxPyPzE( y_fitted[i][0], y_fitted[i][1], y_fitted[i][2], y_fitted[i][3] )
-    
-#    t_lep_true    = TLorentzVector()
-#    t_lep_fitted  = TLorentzVector()
-#    t_lep_true.SetPxPyPzE(   y_true[i][4], y_true[i][5], y_true[i][6], y_true[i][7] )
-#    t_lep_fitted.SetPxPyPzE( y_fitted[i][4], y_fitted[i][5], y_fitted[i][6], y_fitted[i][7] )
+    W_had_true   = MakeP4( y_true_W_had[i], m_W )
+    W_had_fitted = MakeP4( y_fitted[1][i],  m_W )
+
+    b_lep_true   = MakeP4( y_true_b_lep[i], m_b )
+    b_lep_fitted = MakeP4( y_fitted[2][i],  m_b )
+
+    b_had_true   = MakeP4( y_true_b_had[i], m_b )
+    b_had_fitted = MakeP4( y_fitted[3][i],  m_b )
+
+    t_lep_true   = MakeP4( y_true_t_lep[i], m_t )
+    t_lep_fitted = MakeP4( y_fitted[4][i],  m_t )
+
+    t_had_true   = MakeP4( y_true_t_had[i], m_t )
+    t_had_fitted = MakeP4( y_fitted[5][i],  m_t )
 
     try:
+        reso_W_had_px  = ( W_had_fitted.Px()  - W_had_true.Px()  ) / W_had_true.Px()
+        reso_W_had_py  = ( W_had_fitted.Py()  - W_had_true.Py()  ) / W_had_true.Py()
+        reso_W_had_pz  = ( W_had_fitted.Pz()  - W_had_true.Pz()  ) / W_had_true.Pz()
+        reso_W_had_pt  = ( W_had_fitted.Pt()  - W_had_true.Pt()  ) / W_had_true.Pt()   
+        reso_W_had_y   = ( W_had_fitted.Rapidity() - W_had_true.Rapidity() ) / W_had_true.Rapidity()  
+        reso_W_had_phi = ( W_had_fitted.Phi() - W_had_true.Phi() ) / W_had_true.Phi() 
+        reso_W_had_E   = ( W_had_fitted.E()   - W_had_true.E()   ) / W_had_true.E()   
+        reso_W_had_m   = ( W_had_fitted.M()   - W_had_true.M()   ) / W_had_true.M()
+
+        reso_b_had_px  = ( b_had_fitted.Px()  - b_had_true.Px()  ) / b_had_true.Px()
+        reso_b_had_py  = ( b_had_fitted.Py()  - b_had_true.Py()  ) / b_had_true.Py()
+        reso_b_had_pz  = ( b_had_fitted.Pz()  - b_had_true.Pz()  ) / b_had_true.Pz()
+        reso_b_had_pt  = ( b_had_fitted.Pt()  - b_had_true.Pt()  ) / b_had_true.Pt()   
+        reso_b_had_y   = ( b_had_fitted.Rapidity() - b_had_true.Rapidity() ) / b_had_true.Rapidity()  
+        reso_b_had_phi = ( b_had_fitted.Phi() - b_had_true.Phi() ) / b_had_true.Phi() 
+        reso_b_had_E   = ( b_had_fitted.E()   - b_had_true.E()   ) / b_had_true.E()   
+        reso_b_had_m   = ( b_had_fitted.M()   - b_had_true.M()   ) / b_had_true.M()
+
         reso_t_had_px  = ( t_had_fitted.Px()  - t_had_true.Px()  ) / t_had_true.Px()
         reso_t_had_py  = ( t_had_fitted.Py()  - t_had_true.Py()  ) / t_had_true.Py()
         reso_t_had_pz  = ( t_had_fitted.Pz()  - t_had_true.Pz()  ) / t_had_true.Pz()
@@ -197,6 +265,24 @@ for i in range(n_events):
         continue
 
     try:
+        reso_W_lep_px  = ( W_lep_fitted.Px()  - W_lep_true.Px()  ) / W_lep_true.Px()
+        reso_W_lep_py  = ( W_lep_fitted.Py()  - W_lep_true.Py()  ) / W_lep_true.Py()
+        reso_W_lep_pz  = ( W_lep_fitted.Pz()  - W_lep_true.Pz()  ) / W_lep_true.Pz()
+        reso_W_lep_pt  = ( W_lep_fitted.Pt()  - W_lep_true.Pt()  ) / W_lep_true.Pt()   
+        reso_W_lep_y   = ( W_lep_fitted.Rapidity() - W_lep_true.Rapidity() ) / W_lep_true.Rapidity()  
+        reso_W_lep_phi = ( W_lep_fitted.Phi() - W_lep_true.Phi() ) / W_lep_true.Phi()   
+        reso_W_lep_E   = ( W_lep_fitted.E()   - W_lep_true.E()   ) / W_lep_true.E() 
+        reso_W_lep_m   = ( W_lep_fitted.M()   - W_lep_true.M()   ) / W_lep_true.M()
+
+        reso_b_lep_px  = ( b_lep_fitted.Px()  - b_lep_true.Px()  ) / b_lep_true.Px()
+        reso_b_lep_py  = ( b_lep_fitted.Py()  - b_lep_true.Py()  ) / b_lep_true.Py()
+        reso_b_lep_pz  = ( b_lep_fitted.Pz()  - b_lep_true.Pz()  ) / b_lep_true.Pz()
+        reso_b_lep_pt  = ( b_lep_fitted.Pt()  - b_lep_true.Pt()  ) / b_lep_true.Pt()   
+        reso_b_lep_y   = ( b_lep_fitted.Rapidity() - b_lep_true.Rapidity() ) / b_lep_true.Rapidity()  
+        reso_b_lep_phi = ( b_lep_fitted.Phi() - b_lep_true.Phi() ) / b_lep_true.Phi()   
+        reso_b_lep_E   = ( b_lep_fitted.E()   - b_lep_true.E()   ) / b_lep_true.E() 
+        reso_b_lep_m   = ( b_lep_fitted.M()   - b_lep_true.M()   ) / b_lep_true.M()
+
         reso_t_lep_px  = ( t_lep_fitted.Px()  - t_lep_true.Px()  ) / t_lep_true.Px()
         reso_t_lep_py  = ( t_lep_fitted.Py()  - t_lep_true.Py()  ) / t_lep_true.Py()
         reso_t_lep_pz  = ( t_lep_fitted.Pz()  - t_lep_true.Pz()  ) / t_lep_true.Pz()
@@ -209,13 +295,37 @@ for i in range(n_events):
         print "WARNING: invalid leptonic top, skipping event ( rn=%-10i en=%-10i )" % ( event_info[i][0], event_info[i][1] )
         continue
 
-#    histograms['t_had_px'].Fill(  t_had_fitted.Px(),  w )
+
+    histograms['W_had_pt'].Fill(  W_had_fitted.Pt(),  w )
+    histograms['W_had_y'].Fill(   W_had_fitted.Rapidity(), w )
+    histograms['W_had_phi'].Fill( W_had_fitted.Phi(), w )
+    histograms['W_had_E'].Fill(   W_had_fitted.E(),   w )
+    histograms['W_had_m'].Fill(   W_had_fitted.M(),   w )
+
+    histograms['b_had_pt'].Fill(  b_had_fitted.Pt(),  w )
+    histograms['b_had_y'].Fill(   b_had_fitted.Rapidity(), w )
+    histograms['b_had_phi'].Fill( b_had_fitted.Phi(), w )
+    histograms['b_had_E'].Fill(   b_had_fitted.E(),   w )
+    histograms['b_had_m'].Fill(   b_had_fitted.M(),   w )
+
     histograms['t_had_pt'].Fill(  t_had_fitted.Pt(),  w )
     histograms['t_had_y'].Fill(   t_had_fitted.Rapidity(), w )
     histograms['t_had_phi'].Fill( t_had_fitted.Phi(), w )
     histograms['t_had_E'].Fill(   t_had_fitted.E(),   w )
     histograms['t_had_m'].Fill(   t_had_fitted.M(),   w )
     
+    histograms['W_lep_pt'].Fill(  W_lep_fitted.Pt(),  w )
+    histograms['W_lep_y'].Fill(   W_lep_fitted.Rapidity(), w )
+    histograms['W_lep_phi'].Fill( W_lep_fitted.Phi(), w )
+    histograms['W_lep_E'].Fill(   W_lep_fitted.E(),   w )
+    histograms['W_lep_m'].Fill(   W_lep_fitted.M(),   w )
+
+    histograms['b_lep_pt'].Fill(  b_lep_fitted.Pt(),  w )
+    histograms['b_lep_y'].Fill(   b_lep_fitted.Rapidity(), w )
+    histograms['b_lep_phi'].Fill( b_lep_fitted.Phi(), w )
+    histograms['b_lep_E'].Fill(   b_lep_fitted.E(),   w )
+    histograms['b_lep_m'].Fill(   b_lep_fitted.M(),   w )
+
     histograms['t_lep_pt'].Fill(  t_lep_fitted.Pt(),  w )
     histograms['t_lep_y'].Fill(   t_lep_fitted.Rapidity(), w )
     histograms['t_lep_phi'].Fill( t_lep_fitted.Phi(), w )
@@ -234,6 +344,24 @@ for i in range(n_events):
     histograms['corr_t_lep_E'].Fill(   t_lep_true.E(),        t_lep_fitted.E(),   w )
     histograms['corr_t_lep_m'].Fill(   t_lep_true.M(),        t_lep_fitted.M(),   w )
 
+    histograms['reso_W_had_px'].Fill(  reso_W_had_px,  w )
+    histograms['reso_W_had_py'].Fill(  reso_W_had_py,  w )
+    histograms['reso_W_had_pz'].Fill(  reso_W_had_pz,  w )
+    histograms['reso_W_had_pt'].Fill(  reso_W_had_pt,  w )
+    histograms['reso_W_had_y'].Fill(   reso_W_had_y,   w )
+    histograms['reso_W_had_phi'].Fill( reso_W_had_phi, w )
+    histograms['reso_W_had_E'].Fill(   reso_W_had_E,   w )
+    histograms['reso_W_had_m'].Fill(   reso_W_had_m,   w )
+
+    histograms['reso_b_had_px'].Fill(  reso_b_had_px,  w )
+    histograms['reso_b_had_py'].Fill(  reso_b_had_py,  w )
+    histograms['reso_b_had_pz'].Fill(  reso_b_had_pz,  w )
+    histograms['reso_b_had_pt'].Fill(  reso_b_had_pt,  w )
+    histograms['reso_b_had_y'].Fill(   reso_b_had_y,   w )
+    histograms['reso_b_had_phi'].Fill( reso_b_had_phi, w )
+    histograms['reso_b_had_E'].Fill(   reso_b_had_E,   w )
+    histograms['reso_b_had_m'].Fill(   reso_b_had_m,   w )
+
     histograms['reso_t_had_px'].Fill(  reso_t_had_px,  w )
     histograms['reso_t_had_py'].Fill(  reso_t_had_py,  w )
     histograms['reso_t_had_pz'].Fill(  reso_t_had_pz,  w )
@@ -243,6 +371,24 @@ for i in range(n_events):
     histograms['reso_t_had_E'].Fill(   reso_t_had_E,   w )
     histograms['reso_t_had_m'].Fill(   reso_t_had_m,   w )
     
+    histograms['reso_W_lep_px'].Fill(  reso_W_lep_px,  w )
+    histograms['reso_W_lep_py'].Fill(  reso_W_lep_py,  w )
+    histograms['reso_W_lep_pz'].Fill(  reso_W_lep_pz,  w )
+    histograms['reso_W_lep_pt'].Fill(  reso_W_lep_pt,  w )
+    histograms['reso_W_lep_y'].Fill(   reso_W_lep_y, w )
+    histograms['reso_W_lep_phi'].Fill( reso_W_lep_phi, w )
+    histograms['reso_W_lep_E'].Fill(   reso_W_lep_E,   w )
+    histograms['reso_W_lep_m'].Fill(   reso_W_lep_m,   w )
+
+    histograms['reso_b_lep_px'].Fill(  reso_b_lep_px,  w )
+    histograms['reso_b_lep_py'].Fill(  reso_b_lep_py,  w )
+    histograms['reso_b_lep_pz'].Fill(  reso_b_lep_pz,  w )
+    histograms['reso_b_lep_pt'].Fill(  reso_b_lep_pt,  w )
+    histograms['reso_b_lep_y'].Fill(   reso_b_lep_y, w )
+    histograms['reso_b_lep_phi'].Fill( reso_b_lep_phi, w )
+    histograms['reso_b_lep_E'].Fill(   reso_b_lep_E,   w )
+    histograms['reso_b_lep_m'].Fill(   reso_b_lep_m,   w )
+
     histograms['reso_t_lep_px'].Fill(  reso_t_lep_px,  w )
     histograms['reso_t_lep_py'].Fill(  reso_t_lep_py,  w )
     histograms['reso_t_lep_pz'].Fill(  reso_t_lep_pz,  w )
