@@ -7,7 +7,9 @@ header = [
     "j4_px", "j4_py", "j4_pz", "j4_E", "j4_m", "j4_mv2c10",
     "j5_px", "j5_py", "j5_pz", "j5_E", "j5_m", "j5_mv2c10",
     "W_had_px", "W_had_py", "W_had_pz", "W_had_E", "W_had_m", 
-    "W_lep_px", "W_lep_py", "W_lep_pz", "W_lep_E", "W_lep_m", 
+    "W_lep_px", "W_lep_py", "W_lep_pz", "W_lep_E", "W_lep_m",
+    "b_had_px", "b_had_py", "b_had_pz", "b_had_E", "b_had_m", 
+    "b_lep_px", "b_lep_py", "b_lep_pz", "b_lep_E", "b_lep_m", 
     "t_had_px", "t_had_py", "t_had_pz", "t_had_E", "t_had_m", 
     "t_lep_px", "t_lep_py", "t_lep_pz", "t_lep_E", "t_lep_m", 
 ]
@@ -63,6 +65,14 @@ target_features_W_had = [
 
 target_features_W_lep = [
   "W_lep_px", "W_lep_py", "W_lep_pz", #"W_lep_E",
+]
+
+target_features_b_had = [
+  "b_had_px", "b_had_py", "b_had_pz", #"W_had_E",
+]
+
+target_features_b_lep = [
+  "b_lep_px", "b_lep_py", "b_lep_pz", #"W_lep_E",
 ]
 
 target_features_t_had = [

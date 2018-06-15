@@ -131,6 +131,19 @@ for ientry in range(n_entries_reco):
                             tree_parton.MC_W_from_tbar_phi,
                             tree_parton.MC_W_from_tbar_m )
 
+    b_from_t = TLorentzVector() 
+    b_from_t.SetPtEtaPhiM( tree_parton.MC_b_from_t_pt,
+                           tree_parton.MC_b_from_t_eta,
+                           tree_parton.MC_b_from_t_phi,
+                           tree_parton.MC_b_from_t_m )
+
+    b_from_tb = TLorentzVector()
+    b_from_tb.SetPtEtaPhiM( tree_parton.MC_b_from_tbar_pt,
+                            tree_parton.MC_b_from_tbar_eta,
+                            tree_parton.MC_b_from_tbar_phi,
+                            tree_parton.MC_b_from_tbar_m )
+
+
     if t.Pt() == 0.: continue
     if tb.Pt() == 0.: continue
     if t.M() != t.M(): continue
@@ -141,23 +154,46 @@ for ientry in range(n_entries_reco):
     pid_Wdecay1_from_tbar = tree_parton.MC_Wdecay2_from_tbar_pdgId
     #print "DEBUG:", pid_Wdecay1_from_t, pid_Wdecay1_from_tbar
     
+
+    decay_channel = -1
+    apid_Wdecay1_from_t  = abs( tree_parton.MC_Wdecay1_from_t_pdgId )
+    apid_Wdecay1_from_tb = abs( tree_parton.MC_Wdecay1_from_tbar_pdgId )
+
+    if   (apid_Wdecay1_from_t < 10) and (apid_Wdecay1_from_tb < 10): decay_channel = 0
+    elif (apid_Wdecay1_from_t < 10) and (apid_Wdecay1_from_tb > 10): decay_channel = 1
+    elif (apid_Wdecay1_from_t > 10) and (apid_Wdecay1_from_tb < 10): decay_channel = 1
+    else:                                                            decay_channel = 2
+
+    if not decay_channel == 1: continue
+
     t_had = None
     t_lep = None
     W_had = None
     W_lep = None
-    if abs(pid_Wdecay1_from_t) < 10:
-       W_had = TLorentzVector(W_from_t)
-       t_had = TLorentzVector(t)
-    else:
-       t_lep = TLorentzVector(t)
-       W_lep = TLorentzVector(W_from_t)
+    b_had = None
+    b_lep = None
 
-    if abs(pid_Wdecay1_from_tbar) < 10:
-       t_had = TLorentzVector(tb)
-       W_had = TLorentzVector(W_from_tb)
-    else:
+    if apid_Wdecay1_from_t < 10:
+       # t->t_had, tb->t_lep
+       
+       t_had = TLorentzVector(t)
+       W_had = TLorentzVector(W_from_t)
+       b_had = TLorentzVector(b_from_t)
+       
        t_lep = TLorentzVector(tb)
        W_lep = TLorentzVector(W_from_tb)
+       b_lep = TLorentzVector(b_from_tb)
+
+    else:
+       # t->t_lep, tb->t_had
+       
+       t_had = TLorentzVector(tb)
+       W_had = TLorentzVector(W_from_tb)
+       b_had = TLorentzVector(b_from_tb)
+       
+       t_lep = TLorentzVector(t)
+       W_lep = TLorentzVector(W_from_t)
+       b_lep = TLorentzVector(b_from_t)
        
     if t_had == None or t_lep == None:
       continue
@@ -177,7 +213,9 @@ for ientry in range(n_entries_reco):
     target_t_had = np.zeros( [5] )
     target_t_lep = np.zeros( [5] )
     target_W_had = np.zeros( [5] )
-    target_W_lep = np.zeros( [5] )     
+    target_W_lep = np.zeros( [5] )
+    target_b_had = np.zeros( [5] )
+    target_b_lep = np.zeros( [5] )  
 
     target_t_had[0] = t_had.Px()/GeV
     target_t_had[1] = t_had.Py()/GeV
@@ -185,23 +223,35 @@ for ientry in range(n_entries_reco):
     target_t_had[3] = t_had.E()/GeV
     target_t_had[4] = t_had.M()/GeV
     
-    target_t_lep[0] = t_lep.Px()/GeV
-    target_t_lep[1] = t_lep.Py()/GeV
-    target_t_lep[2] = t_lep.Pz()/GeV
-    target_t_lep[3] = t_lep.E()/GeV
-    target_t_lep[4] = t_lep.M()/GeV
-
     target_W_had[0] = W_had.Px()/GeV
     target_W_had[1] = W_had.Py()/GeV
     target_W_had[2] = W_had.Pz()/GeV
     target_W_had[3] = W_had.E()/GeV
     target_W_had[4] = W_had.M()/GeV
 
+    target_b_had[0] = b_had.Px()/GeV
+    target_b_had[1] = b_had.Py()/GeV
+    target_b_had[2] = b_had.Pz()/GeV
+    target_b_had[3] = b_had.E()/GeV
+    target_b_had[4] = b_had.M()/GeV
+
+    target_t_lep[0] = t_lep.Px()/GeV
+    target_t_lep[1] = t_lep.Py()/GeV
+    target_t_lep[2] = t_lep.Pz()/GeV
+    target_t_lep[3] = t_lep.E()/GeV
+    target_t_lep[4] = t_lep.M()/GeV
+
     target_W_lep[0] = W_lep.Px()/GeV
     target_W_lep[1] = W_lep.Py()/GeV
     target_W_lep[2] = W_lep.Pz()/GeV
     target_W_lep[3] = W_lep.E()/GeV
     target_W_lep[4] = W_lep.M()/GeV
+
+    target_b_lep[0] = b_lep.Px()/GeV
+    target_b_lep[1] = b_lep.Py()/GeV
+    target_b_lep[2] = b_lep.Pz()/GeV
+    target_b_lep[3] = b_lep.E()/GeV
+    target_b_lep[4] = b_lep.M()/GeV
 
     # write out
     csvwriter.writerow( (
@@ -214,6 +264,8 @@ for ientry in range(n_entries_reco):
        "%.3f" % sjets[4][0],  "%.3f" % sjets[4][1],  "%.3f" % sjets[4][2],  "%.3f" % sjets[4][3],  "%.3f" % sjets[4][4],  "%.3f" % sjets[4][5], 
        "%.3f" % target_W_had[0], "%.3f" % target_W_had[1], "%.3f" % target_W_had[2], "%.3f" % target_W_had[3], "%.3f" % target_W_had[4],
        "%.3f" % target_W_lep[0], "%.3f" % target_W_lep[1], "%.3f" % target_W_lep[2], "%.3f" % target_W_lep[3], "%.3f" % target_W_lep[4],
+       "%.3f" % target_b_had[0], "%.3f" % target_b_had[1], "%.3f" % target_b_had[2], "%.3f" % target_b_had[3], "%.3f" % target_b_had[4],
+       "%.3f" % target_b_lep[0], "%.3f" % target_b_lep[1], "%.3f" % target_b_lep[2], "%.3f" % target_b_lep[3], "%.3f" % target_b_lep[4],
        "%.3f" % target_t_had[0], "%.3f" % target_t_had[1], "%.3f" % target_t_had[2], "%.3f" % target_t_had[3], "%.3f" % target_t_had[4],
        "%.3f" % target_t_lep[0], "%.3f" % target_t_lep[1], "%.3f" % target_t_lep[2], "%.3f" % target_t_lep[3], "%.3f" % target_t_lep[4]
     ) )

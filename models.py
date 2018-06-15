@@ -94,30 +94,33 @@ def create_model_multi():
    input_jets = Input( shape=(5,6), name='jets_input' )
    input_lep  = Input( shape=(6,), name='lepton_input' )
 
-   x_W_had = LSTM( 50, return_sequences=True)(input_jets)
-   x_W_had = LSTM( 50, return_sequences=False)(x_W_had)
-   x_W_had = Dense(30, activation="elu")(x_W_had)
-   x_W_had = Dense(20, activation="elu")(x_W_had)
-   x_W_had = Dense(10, activation="elu")(x_W_had)
+   x_W_had = TimeDistributed( Dense(100), input_shape=(5,6) )(input_jets)
+   x_W_had = LSTM( 100, return_sequences=True)(x_W_had)
+   x_W_had = LSTM(  50, return_sequences=False)(x_W_had)
+   x_W_had = Dense( 30, activation="elu")(x_W_had)
+   x_W_had = Dense( 20, activation="elu")(x_W_had)
+   x_W_had = Dense( 10, activation="elu")(x_W_had)
    x_W_had_out = Dense(3, name='W_had_out')(x_W_had) # (Px, Pz, Py) + mass constraint
 
    #x_W_lep = LSTM( 50, return_sequences=True)(input_lep)
    #x_W_lep = LSTM( 10, return_sequences=False)(x_W_lep)
-   x_W_lep = Dense(50)(input_lep)
+   x_W_lep = Dense(80)(input_lep)
    x_W_lep = Dense(30, activation="elu")(x_W_lep)
    x_W_lep = Dense(20, activation="elu")(x_W_lep)
    x_W_lep = Dense(10, activation="elu")(x_W_lep)
    x_W_lep = Dense(6)(x_W_lep)
    x_W_lep_out = Dense(3, name='W_lep_out')(x_W_lep)
 
-   x_b_had = LSTM( 50, return_sequences=True)(input_jets)
+   x_b_had = TimeDistributed( Dense(100), input_shape=(5,6) )(input_jets)
+   x_b_had = LSTM( 80, return_sequences=True)(x_b_had)
    x_b_had = LSTM( 50, return_sequences=False)(x_b_had)
    x_b_had = Dense(30, activation="elu")(x_b_had)
    x_b_had = Dense(20, activation="elu")(x_b_had)
    x_b_had = Dense(10, activation="elu")(x_b_had)
    x_b_had_out = Dense(3, name="b_had_out")(x_b_had)
 
-   x_b_lep = LSTM( 50, return_sequences=True)(input_jets)
+   x_b_lep = TimeDistributed( Dense(100), input_shape=(5,6) )(input_jets)
+   x_b_lep = LSTM( 80, return_sequences=True)(x_b_lep)
    x_b_lep = LSTM( 50, return_sequences=False)(x_b_lep)
    x_b_lep = Dense(30, activation="elu")(x_b_lep)
    x_b_lep = Dense(20, activation="elu")(x_b_lep)
@@ -145,7 +148,8 @@ def create_model_multi():
    #x_t_lep = Dense(6)(x_t_lep)
    #x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
 
-   model = Model(inputs=[input_jets,input_lep], outputs=[x_W_lep_out, x_W_had_out, x_t_lep_out, x_t_had_out] )
+   model = Model(inputs=[input_jets,input_lep],
+                 outputs=[x_W_lep_out, x_W_had_out, x_b_lep_out, x_b_had_out, x_t_lep_out, x_t_had_out] )
 
    model.compile( optimizer='adam', loss='mean_squared_error' )
 
