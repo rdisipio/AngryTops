@@ -3,7 +3,7 @@ from keras.models import Model, Sequential
 from keras.layers import Merge, Dense, Activation, Input, LSTM, Permute, Reshape, Masking, TimeDistributed, MaxPooling1D, Flatten
 from keras.layers import Lambda
 from keras.layers import Dropout
-from keras.layers import concatenate, maximum, dot, average
+from keras.layers import concatenate, maximum, dot, average, add
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU, PReLU, ELU
 from keras.layers.merge import *
@@ -96,29 +96,54 @@ def create_model_multi():
 
    x_W_had = LSTM( 50, return_sequences=True)(input_jets)
    x_W_had = LSTM( 50, return_sequences=False)(x_W_had)
-   x_W_had = Dense(30)(x_W_had)
-   x_W_had_out = Dense(3, name='W_had_out')(x_W_had)
+   x_W_had = Dense(30, activation="elu")(x_W_had)
+   x_W_had = Dense(20, activation="elu")(x_W_had)
+   x_W_had = Dense(10, activation="elu")(x_W_had)
+   x_W_had_out = Dense(3, name='W_had_out')(x_W_had) # (Px, Pz, Py) + mass constraint
 
-   x_W_lep = LSTM( 50, return_sequences=True)(input_jets)
-   x_W_lep = LSTM( 10, return_sequences=False)(x_W_lep)
-   x_W_lep = concatenate( [ x_W_lep, input_lep ] )
-   x_W_lep = Dense(10)(x_W_lep)
+   #x_W_lep = LSTM( 50, return_sequences=True)(input_lep)
+   #x_W_lep = LSTM( 10, return_sequences=False)(x_W_lep)
+   x_W_lep = Dense(50)(input_lep)
+   x_W_lep = Dense(30, activation="elu")(x_W_lep)
+   x_W_lep = Dense(20, activation="elu")(x_W_lep)
+   x_W_lep = Dense(10, activation="elu")(x_W_lep)
    x_W_lep = Dense(6)(x_W_lep)
    x_W_lep_out = Dense(3, name='W_lep_out')(x_W_lep)
 
-   x_t_had = LSTM( 50, return_sequences=True)(input_jets)
-   x_t_had = LSTM( 10, return_sequences=False)(x_t_had)
-   x_t_had = concatenate( [ x_t_had, x_W_had ] )
-   x_t_had = Dense(10)(x_t_had)
-   x_t_had = Dense(6)(x_t_had)
-   x_t_had_out = Dense(3, name='t_had_out')(x_t_had)
+   x_b_had = LSTM( 50, return_sequences=True)(input_jets)
+   x_b_had = LSTM( 50, return_sequences=False)(x_b_had)
+   x_b_had = Dense(30, activation="elu")(x_b_had)
+   x_b_had = Dense(20, activation="elu")(x_b_had)
+   x_b_had = Dense(10, activation="elu")(x_b_had)
+   x_b_had_out = Dense(3, name="b_had_out")(x_b_had)
 
-   x_t_lep = LSTM( 50, return_sequences=True)(input_jets)
-   x_t_lep = LSTM( 10, return_sequences=False)(x_t_lep)
-   x_t_lep = concatenate( [ x_t_lep, x_W_lep ] )
-   x_t_lep = Dense(10)(x_t_lep)
-   x_t_lep = Dense(6)(x_t_lep)
+   x_b_lep = LSTM( 50, return_sequences=True)(input_jets)
+   x_b_lep = LSTM( 50, return_sequences=False)(x_b_lep)
+   x_b_lep = Dense(30, activation="elu")(x_b_lep)
+   x_b_lep = Dense(20, activation="elu")(x_b_lep)
+   x_b_lep = Dense(10, activation="elu")(x_b_lep)
+   x_b_lep_out = Dense(3, name="b_lep_out")(x_b_lep)
+   
+   x_t_had  = add( [ x_W_had_out, x_b_had_out ] )
+   x_t_had_out = Dense(3, name='t_had_out')(x_t_had)
+   
+   x_t_lep  = add( [ x_W_lep_out, x_b_lep_out ] )
    x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
+   
+   
+   #x_t_had = LSTM( 50, return_sequences=True)(input_jets)
+   #x_t_had = LSTM( 10, return_sequences=False)(x_t_had)
+   #x_t_had = concatenate( [ x_t_had, x_W_had ] )
+   #x_t_had = Dense(10)(x_t_had)
+   #x_t_had = Dense(6)(x_t_had)
+   #x_t_had_out = Dense(3, name='t_had_out')(x_t_had)
+
+   #x_t_lep = LSTM( 50, return_sequences=True)(input_jets)
+   #x_t_lep = LSTM( 10, return_sequences=False)(x_t_lep)
+   #x_t_lep = concatenate( [ x_t_lep, x_W_lep ] )
+   #x_t_lep = Dense(10)(x_t_lep)
+   #x_t_lep = Dense(6)(x_t_lep)
+   #x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
 
    model = Model(inputs=[input_jets,input_lep], outputs=[x_W_lep_out, x_W_had_out, x_t_lep_out, x_t_had_out] )
 
