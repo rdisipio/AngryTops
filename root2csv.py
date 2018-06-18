@@ -15,8 +15,94 @@ from features import *
 
 GeV = 1e3
 TeV = 1e6
+rng = TRandom3()
 
 ###############################
+
+def RotateEvent( lep, jets, phi ):
+
+    lep_new            = TLorentzVector( lep )
+    lep_new.q          = lep.q
+    lep_new.flav       = lep.flav    
+    lep_new.topoetcone = lep.topoetcone
+    lep_new.ptvarcone  = lep.ptvarcone
+    lep_new.d0sig      = lep.d0sig
+    
+    lep_new.RotateZ( phi )
+
+    jets_new = []
+    for j in jets:
+        jets_new += [ TLorentzVector(j) ]
+        j_new = jets_new[-1]
+
+        j_new.mv2c10 = j.mv2c10
+        j_new.index  = j.index
+
+        j_new.RotateZ( phi )
+
+    return lep_new, jets_new
+
+###############################
+
+def MakeInput( jets, W_had, b_had, t_had, W_lep, b_lep, t_lep ):
+   sjets = np.zeros( [ n_jets_per_event, n_features_per_jet ] )
+
+   for i in range(len(jets)):
+      jet = jets[i]
+      sjets[i][0] = jet.Px()/GeV
+      sjets[i][1] = jet.Py()/GeV 
+      sjets[i][2] = jet.Pz()/GeV
+      sjets[i][3] = jet.E()/GeV
+      sjets[i][4] = jet.M()/GeV
+      sjets[i][5] = jet.mv2c10
+      
+   target_W_had = np.zeros( [5] )
+   target_b_had = np.zeros( [5] )
+   target_t_had = np.zeros( [5] )
+   target_W_lep = np.zeros( [5] )
+   target_b_lep = np.zeros( [5] )  
+   target_t_lep = np.zeros( [5] )
+   
+   target_t_had[0] = t_had.Px()/GeV
+   target_t_had[1] = t_had.Py()/GeV
+   target_t_had[2] = t_had.Pz()/GeV
+   target_t_had[3] = t_had.E()/GeV
+   target_t_had[4] = t_had.M()/GeV
+    
+   target_W_had[0] = W_had.Px()/GeV
+   target_W_had[1] = W_had.Py()/GeV
+   target_W_had[2] = W_had.Pz()/GeV
+   target_W_had[3] = W_had.E()/GeV
+   target_W_had[4] = W_had.M()/GeV
+
+   target_b_had[0] = b_had.Px()/GeV
+   target_b_had[1] = b_had.Py()/GeV
+   target_b_had[2] = b_had.Pz()/GeV
+   target_b_had[3] = b_had.E()/GeV
+   target_b_had[4] = b_had.M()/GeV
+
+   target_t_lep[0] = t_lep.Px()/GeV
+   target_t_lep[1] = t_lep.Py()/GeV
+   target_t_lep[2] = t_lep.Pz()/GeV
+   target_t_lep[3] = t_lep.E()/GeV
+   target_t_lep[4] = t_lep.M()/GeV
+   
+   target_W_lep[0] = W_lep.Px()/GeV
+   target_W_lep[1] = W_lep.Py()/GeV
+   target_W_lep[2] = W_lep.Pz()/GeV
+   target_W_lep[3] = W_lep.E()/GeV
+   target_W_lep[4] = W_lep.M()/GeV
+
+   target_b_lep[0] = b_lep.Px()/GeV
+   target_b_lep[1] = b_lep.Py()/GeV
+   target_b_lep[2] = b_lep.Pz()/GeV
+   target_b_lep[3] = b_lep.E()/GeV
+   target_b_lep[4] = b_lep.M()/GeV
+
+   return sjets, target_W_had, target_b_had, target_t_had, target_W_lep, target_b_lep, target_t_lep
+
+###############################
+
 
 filelistname = sys.argv[1]
 
@@ -25,6 +111,10 @@ if len(sys.argv) > 2: syst = sys.argv[2]
 
 outfilename = filelistname.split("/")[-1]
 outfilename = "csv/topreco." + outfilename.replace(".txt", ".%s.csv" % ( syst ) )
+
+# use data augmentation?
+n_data_aug = 5
+print "INFO: using data augmentation: rotateZ %ix" % n_data_aug
 
 outfile = open( outfilename, "wt" )
 csvwriter = csv.writer( outfile )
@@ -197,80 +287,45 @@ for ientry in range(n_entries_reco):
        
     if t_had == None or t_lep == None:
       continue
-    
-    # make event wrapper
-    sjets = np.zeros( [ n_jets_per_event, n_features_per_jet ] )
-
-    for i in range(len(jets)):
-        jet = jets[i]
-        sjets[i][0] = jet.Px()/GeV
-        sjets[i][1] = jet.Py()/GeV 
-        sjets[i][2] = jet.Pz()/GeV
-        sjets[i][3] = jet.E()/GeV
-        sjets[i][4] = jet.M()/GeV
-        sjets[i][5] = jet.mv2c10
-
-    target_t_had = np.zeros( [5] )
-    target_t_lep = np.zeros( [5] )
-    target_W_had = np.zeros( [5] )
-    target_W_lep = np.zeros( [5] )
-    target_b_had = np.zeros( [5] )
-    target_b_lep = np.zeros( [5] )  
-
-    target_t_had[0] = t_had.Px()/GeV
-    target_t_had[1] = t_had.Py()/GeV
-    target_t_had[2] = t_had.Pz()/GeV
-    target_t_had[3] = t_had.E()/GeV
-    target_t_had[4] = t_had.M()/GeV
-    
-    target_W_had[0] = W_had.Px()/GeV
-    target_W_had[1] = W_had.Py()/GeV
-    target_W_had[2] = W_had.Pz()/GeV
-    target_W_had[3] = W_had.E()/GeV
-    target_W_had[4] = W_had.M()/GeV
-
-    target_b_had[0] = b_had.Px()/GeV
-    target_b_had[1] = b_had.Py()/GeV
-    target_b_had[2] = b_had.Pz()/GeV
-    target_b_had[3] = b_had.E()/GeV
-    target_b_had[4] = b_had.M()/GeV
-
-    target_t_lep[0] = t_lep.Px()/GeV
-    target_t_lep[1] = t_lep.Py()/GeV
-    target_t_lep[2] = t_lep.Pz()/GeV
-    target_t_lep[3] = t_lep.E()/GeV
-    target_t_lep[4] = t_lep.M()/GeV
-
-    target_W_lep[0] = W_lep.Px()/GeV
-    target_W_lep[1] = W_lep.Py()/GeV
-    target_W_lep[2] = W_lep.Pz()/GeV
-    target_W_lep[3] = W_lep.E()/GeV
-    target_W_lep[4] = W_lep.M()/GeV
-
-    target_b_lep[0] = b_lep.Px()/GeV
-    target_b_lep[1] = b_lep.Py()/GeV
-    target_b_lep[2] = b_lep.Pz()/GeV
-    target_b_lep[3] = b_lep.E()/GeV
-    target_b_lep[4] = b_lep.M()/GeV
-
-    # write out
-    csvwriter.writerow( (
-       "%i" % tree_reco.runNumber, "%i" % tree_reco.eventNumber, "%.3f" % weight, "%i" % jets_n, "%i" % bjets_n,
-       "%.3f" % lep.Px(),     "%.3f" % lep.Py(),     "%.3f" % lep.Pz(),     "%.3f" % lep.E(),      "%.3f" % met_met,      "%.3f" % met_phi,
-       "%.3f" % sjets[0][0],  "%.3f" % sjets[0][1],  "%.3f" % sjets[0][2],  "%.3f" % sjets[0][3],  "%.3f" % sjets[0][4],  "%.3f" % sjets[0][5], 
-       "%.3f" % sjets[1][0],  "%.3f" % sjets[1][1],  "%.3f" % sjets[1][2],  "%.3f" % sjets[1][3],  "%.3f" % sjets[1][4],  "%.3f" % sjets[1][5], 
-       "%.3f" % sjets[2][0],  "%.3f" % sjets[2][1],  "%.3f" % sjets[2][2],  "%.3f" % sjets[2][3],  "%.3f" % sjets[2][4],  "%.3f" % sjets[2][5],
-       "%.3f" % sjets[3][0],  "%.3f" % sjets[3][1],  "%.3f" % sjets[3][2],  "%.3f" % sjets[3][3],  "%.3f" % sjets[3][4],  "%.3f" % sjets[3][5], 
-       "%.3f" % sjets[4][0],  "%.3f" % sjets[4][1],  "%.3f" % sjets[4][2],  "%.3f" % sjets[4][3],  "%.3f" % sjets[4][4],  "%.3f" % sjets[4][5], 
-       "%.3f" % target_W_had[0], "%.3f" % target_W_had[1], "%.3f" % target_W_had[2], "%.3f" % target_W_had[3], "%.3f" % target_W_had[4],
-       "%.3f" % target_W_lep[0], "%.3f" % target_W_lep[1], "%.3f" % target_W_lep[2], "%.3f" % target_W_lep[3], "%.3f" % target_W_lep[4],
-       "%.3f" % target_b_had[0], "%.3f" % target_b_had[1], "%.3f" % target_b_had[2], "%.3f" % target_b_had[3], "%.3f" % target_b_had[4],
-       "%.3f" % target_b_lep[0], "%.3f" % target_b_lep[1], "%.3f" % target_b_lep[2], "%.3f" % target_b_lep[3], "%.3f" % target_b_lep[4],
-       "%.3f" % target_t_had[0], "%.3f" % target_t_had[1], "%.3f" % target_t_had[2], "%.3f" % target_t_had[3], "%.3f" % target_t_had[4],
-       "%.3f" % target_t_lep[0], "%.3f" % target_t_lep[1], "%.3f" % target_t_lep[2], "%.3f" % target_t_lep[3], "%.3f" % target_t_lep[4]
-    ) )
 
     n_good += 1
+   
+    phi = 0.
+    for n in range(n_data_aug+1):
+       # rotate f.s.o.
+       lep.RotateZ( phi )
+       met_phi += phi
+       for j in jets: j.RotateZ(phi)
+       W_had.RotateZ( phi )
+       b_had.RotateZ( phi )
+       t_had.RotateZ( phi )
+       W_lep.RotateZ( phi )
+       b_lep.RotateZ( phi )
+       t_lep.RotateZ( phi )
+       
+       # make event wrapper
+       sjets, target_W_had, target_b_had, target_t_had, target_W_lep, target_b_lep, target_t_lep = MakeInput( jets, W_had, b_had, t_had, W_lep, b_lep, t_lep )
+   
+       # write out
+       csvwriter.writerow( (
+          "%i" % tree_reco.runNumber, "%i" % tree_reco.eventNumber, "%.3f" % weight, "%i" % jets_n, "%i" % bjets_n,
+          "%.3f" % lep.Px(),     "%.3f" % lep.Py(),     "%.3f" % lep.Pz(),     "%.3f" % lep.E(),      "%.3f" % met_met,      "%.3f" % met_phi,
+          "%.3f" % sjets[0][0],  "%.3f" % sjets[0][1],  "%.3f" % sjets[0][2],  "%.3f" % sjets[0][3],  "%.3f" % sjets[0][4],  "%.3f" % sjets[0][5], 
+          "%.3f" % sjets[1][0],  "%.3f" % sjets[1][1],  "%.3f" % sjets[1][2],  "%.3f" % sjets[1][3],  "%.3f" % sjets[1][4],  "%.3f" % sjets[1][5], 
+          "%.3f" % sjets[2][0],  "%.3f" % sjets[2][1],  "%.3f" % sjets[2][2],  "%.3f" % sjets[2][3],  "%.3f" % sjets[2][4],  "%.3f" % sjets[2][5],
+          "%.3f" % sjets[3][0],  "%.3f" % sjets[3][1],  "%.3f" % sjets[3][2],  "%.3f" % sjets[3][3],  "%.3f" % sjets[3][4],  "%.3f" % sjets[3][5], 
+          "%.3f" % sjets[4][0],  "%.3f" % sjets[4][1],  "%.3f" % sjets[4][2],  "%.3f" % sjets[4][3],  "%.3f" % sjets[4][4],  "%.3f" % sjets[4][5], 
+          "%.3f" % target_W_had[0], "%.3f" % target_W_had[1], "%.3f" % target_W_had[2], "%.3f" % target_W_had[3], "%.3f" % target_W_had[4],
+          "%.3f" % target_W_lep[0], "%.3f" % target_W_lep[1], "%.3f" % target_W_lep[2], "%.3f" % target_W_lep[3], "%.3f" % target_W_lep[4],
+          "%.3f" % target_b_had[0], "%.3f" % target_b_had[1], "%.3f" % target_b_had[2], "%.3f" % target_b_had[3], "%.3f" % target_b_had[4],
+          "%.3f" % target_b_lep[0], "%.3f" % target_b_lep[1], "%.3f" % target_b_lep[2], "%.3f" % target_b_lep[3], "%.3f" % target_b_lep[4],
+          "%.3f" % target_t_had[0], "%.3f" % target_t_had[1], "%.3f" % target_t_had[2], "%.3f" % target_t_had[3], "%.3f" % target_t_had[4],
+          "%.3f" % target_t_lep[0], "%.3f" % target_t_lep[1], "%.3f" % target_t_lep[2], "%.3f" % target_t_lep[3], "%.3f" % target_t_lep[4]
+       ) )
+
+       phi = rng.Uniform( -TMath.Pi(), TMath.Pi() )
+
+    
         
 outfile.close()
 

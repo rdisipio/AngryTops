@@ -25,7 +25,7 @@ import pandas as pd
 from features import *
 import models
 
-early_stopping = EarlyStopping( monitor='val_loss', min_delta=0.01, patience=3, mode='min' )
+early_stopping = EarlyStopping( monitor='val_loss', min_delta=0.001, patience=3, mode='min' )
 callbacks_list = [ early_stopping ]
 
 training_filename = "csv/topreco.mc.410501.nominal.csv"
@@ -49,7 +49,7 @@ event_info = data[features_event_info].values
 n_events   = len(event_info)
 
 # standardize input and target
-max_momentum = 2000.
+max_momentum = 1000.
 scaler_lept = StandardScaler()
 scaler_jets = StandardScaler()
 #scaler_y = StandardScaler()

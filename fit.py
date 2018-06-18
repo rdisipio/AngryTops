@@ -24,6 +24,14 @@ import models
 
 ################
 
+def PrintOut( p4_true, p4_fitted, event_info, label ):
+  print "rn=%-10i en=%-10i ) %s :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
+               ( event_info[0], event_info[1], label,
+                p4_true.Pt(),   p4_true.Rapidity(),   p4_true.Phi(),   p4_true.E(),   p4_true.M(), \
+                p4_fitted.Pt(), p4_fitted.Rapidity(), p4_fitted.Phi(), p4_fitted.E(), p4_fitted.M() )
+
+################
+
 def MakeP4( y, m=0., sf=1.0 ):
   p4 = TLorentzVector()
 
@@ -58,7 +66,7 @@ with open( scaler_filename, "rb" ) as file_scaler:
   scaler_lept = pickle.load( file_scaler )
   scaler_jets = pickle.load( file_scaler )
   #y_scaler = pickle.load( file_scaler )
-max_momentum = 2000.
+max_momentum = 1000.
 
 # read in input file
 data = pd.read_csv( infilename, delimiter=',', names=header )
@@ -343,6 +351,7 @@ for i in range(n_events):
     b_W_had_pt_true[0]  = W_had_true.Pt()
     b_W_had_y_true[0]   = W_had_true.Rapidity()
     b_W_had_phi_true[0] = W_had_true.Phi()
+    
     b_b_had_px_true[0]  = b_had_true.Px()
     b_b_had_py_true[0]  = b_had_true.Py()
     b_b_had_pz_true[0]  = b_had_true.Pz()
@@ -351,6 +360,7 @@ for i in range(n_events):
     b_b_had_pt_true[0]  = b_had_true.Pt()
     b_b_had_y_true[0]   = b_had_true.Rapidity()
     b_b_had_phi_true[0] = b_had_true.Phi()
+    
     b_t_had_px_true[0]  = t_had_true.Px()
     b_t_had_py_true[0]  = t_had_true.Py()
     b_t_had_pz_true[0]  = t_had_true.Pz()
@@ -359,6 +369,7 @@ for i in range(n_events):
     b_t_had_pt_true[0]  = t_had_true.Pt()
     b_t_had_y_true[0]   = t_had_true.Rapidity()
     b_t_had_phi_true[0] = t_had_true.Phi()
+    
     b_W_lep_px_true[0]  = W_lep_true.Px()
     b_W_lep_py_true[0]  = W_lep_true.Py()
     b_W_lep_pz_true[0]  = W_lep_true.Pz()
@@ -367,6 +378,7 @@ for i in range(n_events):
     b_W_lep_pt_true[0]  = W_lep_true.Pt()
     b_W_lep_y_true[0]   = W_lep_true.Rapidity()
     b_W_lep_phi_true[0] = W_lep_true.Phi()
+    
     b_b_lep_px_true[0]  = b_lep_true.Px()
     b_b_lep_py_true[0]  = b_lep_true.Py()
     b_b_lep_pz_true[0]  = b_lep_true.Pz()
@@ -375,6 +387,7 @@ for i in range(n_events):
     b_b_lep_pt_true[0]  = b_lep_true.Pt()
     b_b_lep_y_true[0]   = b_lep_true.Rapidity()
     b_b_lep_phi_true[0] = b_lep_true.Phi()
+    
     b_t_lep_px_true[0]  = t_lep_true.Px()
     b_t_lep_py_true[0]  = t_lep_true.Py()
     b_t_lep_pz_true[0]  = t_lep_true.Pz()
@@ -392,6 +405,7 @@ for i in range(n_events):
     b_W_had_pt_fitted[0]  = W_had_fitted.Pt()
     b_W_had_y_fitted[0]   = W_had_fitted.Rapidity()
     b_W_had_phi_fitted[0] = W_had_fitted.Phi()
+    
     b_b_had_px_fitted[0]  = b_had_fitted.Px()
     b_b_had_py_fitted[0]  = b_had_fitted.Py()
     b_b_had_pz_fitted[0]  = b_had_fitted.Pz()
@@ -400,6 +414,7 @@ for i in range(n_events):
     b_b_had_pt_fitted[0]  = b_had_fitted.Pt()
     b_b_had_y_fitted[0]   = b_had_fitted.Rapidity()
     b_b_had_phi_fitted[0] = b_had_fitted.Phi()
+    
     b_t_had_px_fitted[0]  = t_had_fitted.Px()
     b_t_had_py_fitted[0]  = t_had_fitted.Py()
     b_t_had_pz_fitted[0]  = t_had_fitted.Pz()
@@ -408,6 +423,7 @@ for i in range(n_events):
     b_t_had_pt_fitted[0]  = t_had_fitted.Pt()
     b_t_had_y_fitted[0]   = t_had_fitted.Rapidity()
     b_t_had_phi_fitted[0] = t_had_fitted.Phi()
+    
     b_W_lep_px_fitted[0]  = W_lep_fitted.Px()
     b_W_lep_py_fitted[0]  = W_lep_fitted.Py()
     b_W_lep_pz_fitted[0]  = W_lep_fitted.Pz()
@@ -416,6 +432,7 @@ for i in range(n_events):
     b_W_lep_pt_fitted[0]  = W_lep_fitted.Pt()
     b_W_lep_y_fitted[0]   = W_lep_fitted.Rapidity()
     b_W_lep_phi_fitted[0] = W_lep_fitted.Phi()
+    
     b_b_lep_px_fitted[0]  = b_lep_fitted.Px()
     b_b_lep_py_fitted[0]  = b_lep_fitted.Py()
     b_b_lep_pz_fitted[0]  = b_lep_fitted.Pz()
@@ -424,6 +441,7 @@ for i in range(n_events):
     b_b_lep_pt_fitted[0]  = b_lep_fitted.Pt()
     b_b_lep_y_fitted[0]   = b_lep_fitted.Rapidity()
     b_b_lep_phi_fitted[0] = b_lep_fitted.Phi()
+    
     b_t_lep_px_fitted[0]  = t_lep_fitted.Px()
     b_t_lep_py_fitted[0]  = t_lep_fitted.Py()
     b_t_lep_pz_fitted[0]  = t_lep_fitted.Pz()
@@ -438,16 +456,9 @@ for i in range(n_events):
     n_good += 1
     
     if i < 10:
-       print "rn=%-10i en=%-10i ) Hadronic top      :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
-               ( event_info[i][0], event_info[i][1],
-                t_had_true.Pt(),   t_had_true.Rapidity(),   t_had_true.Phi(),   t_had_true.E(),   t_had_true.M(), \
-                t_had_fitted.Pt(), t_had_fitted.Rapidity(), t_had_fitted.Phi(), t_had_fitted.E(), t_had_fitted.M() )
-   
-       print "rn=%-10i en=%-10i ) Leptonic top  :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
-               ( event_info[i][0], event_info[i][1],
-                t_lep_true.Pt(),   t_lep_true.Rapidity(),   t_lep_true.Phi(),   t_lep_true.E(),   t_lep_true.M(), \
-                t_lep_fitted.Pt(), t_lep_fitted.Rapidity(), t_lep_fitted.Phi(), t_lep_fitted.E(), t_lep_fitted.M() )
-    
+      PrintOut( t_had_true, t_had_fitted, event_info[i], "Hadronic top" )
+      PrintOut( t_lep_true, t_lep_fitted, event_info[i], "Leptonic top" )
+      
 ofile.Write()
 ofile.Close()
 

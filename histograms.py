@@ -14,6 +14,14 @@ from array import array
 import cPickle as pickle
 
 
+################
+
+def PrintOut( p4_true, p4_fitted, label ):
+  print "%s :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
+               ( label,
+                p4_true.Pt(),   p4_true.Rapidity(),   p4_true.Phi(),   p4_true.E(),   p4_true.M(), \
+                p4_fitted.Pt(), p4_fitted.Rapidity(), p4_fitted.Phi(), p4_fitted.E(), p4_fitted.M() )
+
 ###############
 
 infilename = "output/fitted.root"
@@ -274,6 +282,7 @@ for i in range(n_events):
         reso_t_had_m   = 1. - t_had_fitted.M()   / t_had_true.M()  
     except:
         print "WARNING: invalid hadronic top, skipping event ( rn=%-10i en=%-10i )" % ( tree.runNumber, tree.eventNumber )
+        PrintOut( t_had_true, t_had_fitted, "Hadronic top" )
         continue
 
     try:
@@ -305,6 +314,7 @@ for i in range(n_events):
         reso_t_lep_m   = 1. - t_lep_fitted.M()   / t_lep_true.M()
     except:
         print "WARNING: invalid leptonic top, skipping event ( rn=%-10i en=%-10i )" % ( tree.runNumber, tree.eventNumber )
+        PrintOut( t_lep_true, t_lep_fitted, "Leptonic top" )
         continue
 
     # true
@@ -486,16 +496,9 @@ for i in range(n_events):
     n_good += 1
     
     if i < 10:
-       print "rn=%-10i en=%-10i ) Hadronic top :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
-               ( tree.runNumber, tree.eventNumber,
-                t_had_true.Pt(),   t_had_true.Rapidity(),   t_had_true.Phi(),   t_had_true.E(),   t_had_true.M(), \
-                t_had_fitted.Pt(), t_had_fitted.Rapidity(), t_had_fitted.Phi(), t_had_fitted.E(), t_had_fitted.M() )
-   
-       print "rn=%-10i en=%-10i ) Leptonic top :: true=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f ) :: fitted=( %4.1f, %3.2f, %3.2f, %4.1f ; %3.1f )" % \
-               ( tree.runNumber, tree.eventNumber,
-                t_lep_true.Pt(),   t_lep_true.Rapidity(),   t_lep_true.Phi(),   t_lep_true.E(),   t_lep_true.M(), \
-                t_lep_fitted.Pt(), t_lep_fitted.Rapidity(), t_lep_fitted.Phi(), t_lep_fitted.E(), t_lep_fitted.M() )
-    
+      PrintOut( t_had_true, t_had_fitted, "Hadronic top" )
+      PrintOut( t_lep_true, t_lep_fitted, "Leptonic top" )
+      
 ofile.Write()
 ofile.Close()
 
