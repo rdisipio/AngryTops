@@ -9,85 +9,24 @@ m_b = 4.95
 import os, sys, time
 import argparse
 
-from keras.models import load_model
-
 from ROOT import *
 from array import array
 import cPickle as pickle
-import numpy as np
-import pandas as pd
-
-np.set_printoptions( precision=3, suppress=True, linewidth=250 )
-
-from features import *
-import models
-
-################
-
-def MakeP4( y, m=0. ):
-  p4 = TLorentzVector()
-
-  px = y[0]
-  py = y[1]
-  pz = y[2]
-  P2 = px*px + py*py + pz*pz
-  E  = TMath.Sqrt( P2 + m*m )
-  
-  p4.SetPxPyPzE( px, py, pz, E )
-  return p4
 
 
 ###############
 
-infilename = "csv/topreco_mc.410501.nominal.csv"
+infilename = "output/fitted.root"
 if len(sys.argv) > 1: infilename = sys.argv[1]
 
-##################
-# Load Keras stuff
-X_scaler = None
-y_scaler = None
-dnn      = None
 
-model_filename  = "keras/model.rnn.PxPyPzEMBw.h5"
-scaler_filename = "keras/scaler.rnn.PxPyPzEMBw.pkl"
-
-dnn = load_model( model_filename )
-print dnn.summary()
-
-with open( scaler_filename, "rb" ) as file_scaler:
-  X_t_lep_scaler = pickle.load( file_scaler )
-  X_t_had_scaler = pickle.load( file_scaler )
-  y_scaler = pickle.load( file_scaler )
 
 # read in input file
-data = pd.read_csv( infilename, delimiter=',', names=header )
-
-X_jets   = data[input_features_jets].values
-X_lepton = data[input_features_lep].values
-
-y_true_W_lep = data[target_features_W_lep].values
-y_true_W_had = data[target_features_W_had].values
-y_true_b_lep = data[target_features_b_lep].values
-y_true_b_had = data[target_features_b_had].values
-y_true_t_lep = data[target_features_t_lep].values
-y_true_t_had = data[target_features_t_had].values
-
-event_info = data[features_event_info].values
-n_events   = len(event_info)
-
-X_jets   = X_jets.reshape( (n_events,n_jets_per_event,n_features_per_jet) )
-
-print "INFO: fitting ttbar decay chain..."
-y_fitted = dnn.predict( { 'jets_input':X_jets, 'lepton_input':X_lepton } )
-#y_fitted = y_scaler.inverse_transform( y_fitted )
-print "INFO ...done"
-
-#print "INFO: shape of fitted particles:", y_fitted.shape
-#y_fitted = y_fitted.reshape( (4, 3) )
-#print y_fitted
+infile = TFile.Open( infilename )
+tree   = infile.Get( "nominal") 
 
 # open output file
-ofilename = "output/testing.root"
+ofilename = "output/histograms.root"
 ofile = TFile.Open( ofilename, "recreate" )
 ofile.cd()
 
@@ -250,27 +189,23 @@ for i in range(n_events):
         perc = 100. * i / float(n_events)
         print "INFO: Event %-9i  (%3.0f %%)" % ( i, perc )
 
-    w = event_info[i][2]
-    jets_n  = event_info[i][3]
-    bjets_n = event_info[i][4]
+    tree.GetEntry( ientry )
+    
+    w = tree.weight_mc
+  
 
-    W_lep_true   = MakeP4( y_true_W_lep[i], m_W )
-    W_lep_fitted = MakeP4( y_fitted[0][i],  m_W )
-
-    W_had_true   = MakeP4( y_true_W_had[i], m_W )
-    W_had_fitted = MakeP4( y_fitted[1][i],  m_W )
-
-    b_lep_true   = MakeP4( y_true_b_lep[i], m_b )
-    b_lep_fitted = MakeP4( y_fitted[2][i],  m_b )
-
-    b_had_true   = MakeP4( y_true_b_had[i], m_b )
-    b_had_fitted = MakeP4( y_fitted[3][i],  m_b )
-
-    t_lep_true   = MakeP4( y_true_t_lep[i], m_t )
-    t_lep_fitted = MakeP4( y_fitted[4][i],  m_t )
-
-    t_had_true   = MakeP4( y_true_t_had[i], m_t )
-    t_had_fitted = MakeP4( y_fitted[5][i],  m_t )
+    W_had_true   = TLorentzVector( tree.W_had_px_true, tree.W_had_py_true, tree.W_had_pz_true, tree.W_had_E_true )
+    b_had_true   = TLorentzVector( tree.b_had_px_true, tree.b_had_py_true, tree.b_had_pz_true, tree.b_had_E_true )
+    t_had_true   = TLorentzVector( tree.t_had_px_true, tree.t_had_py_true, tree.t_had_pz_true, tree.t_had_E_true )
+    W_lep_true   = TLorentzVector( tree.W_lep_px_true, tree.W_lep_py_true, tree.W_lep_pz_true, tree.W_lep_E_true )
+    b_lep_true   = TLorentzVector( tree.b_lep_px_true, tree.b_lep_py_true, tree.b_lep_pz_true, tree.b_lep_E_true )
+    t_lep_true   = TLorentzVector( tree.t_lep_px_true, tree.t_lep_py_true, tree.t_lep_pz_true, tree.t_lep_E_true )
+    W_had_fitted   = TLorentzVector( tree.W_had_px_fitted, tree.W_had_py_fitted, tree.W_had_pz_fitted, tree.W_had_E_fitted )
+    b_had_fitted   = TLorentzVector( tree.b_had_px_fitted, tree.b_had_py_fitted, tree.b_had_pz_fitted, tree.b_had_E_fitted )
+    t_had_fitted   = TLorentzVector( tree.t_had_px_fitted, tree.t_had_py_fitted, tree.t_had_pz_fitted, tree.t_had_E_fitted )
+    W_lep_fitted   = TLorentzVector( tree.W_lep_px_fitted, tree.W_lep_py_fitted, tree.W_lep_pz_fitted, tree.W_lep_E_fitted )
+    b_lep_fitted   = TLorentzVector( tree.b_lep_px_fitted, tree.b_lep_py_fitted, tree.b_lep_pz_fitted, tree.b_lep_E_fitted )
+    t_lep_fitted   = TLorentzVector( tree.t_lep_px_fitted, tree.t_lep_py_fitted, tree.t_lep_pz_fitted, tree.t_lep_E_fitted )
 
     try:
         reso_W_had_px  = ( W_had_fitted.Px()  - W_had_true.Px()  ) / W_had_true.Px()
