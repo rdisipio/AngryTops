@@ -81,7 +81,7 @@ X_jets = scaler_jets.transform( X_jets )
 X_jets   = X_jets.reshape( (n_events,n_jets_per_event,n_features_per_jet) )
 
 print "INFO: fitting ttbar decay chain..."
-y_fitted = dnn.predict( { 'jets_input':X_jets, 'lepton_input':X_lept } )
+y_fitted = dnn.predict( { 'input_jets':X_jets, 'input_lept':X_lept } )
 #y_fitted = y_scaler.inverse_transform( y_fitted )
 print "INFO ...done"
 
