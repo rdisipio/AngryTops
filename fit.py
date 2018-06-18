@@ -24,12 +24,12 @@ import models
 
 ################
 
-def MakeP4( y, m=0. ):
+def MakeP4( y, m=0., sf=1.0 ):
   p4 = TLorentzVector()
 
-  px = y[0]
-  py = y[1]
-  pz = y[2]
+  px = y[0] * sf
+  py = y[1] * sf
+  pz = y[2] * sf
   P2 = px*px + py*py + pz*pz
   E  = TMath.Sqrt( P2 + m*m )
   
@@ -39,7 +39,7 @@ def MakeP4( y, m=0. ):
 
 ###############
 
-infilename = "csv/topreco_mc.410501.nominal.csv"
+infilename = "csv/test.csv"
 if len(sys.argv) > 1: infilename = sys.argv[1]
 
 ##################
@@ -55,15 +55,16 @@ dnn = load_model( model_filename )
 print dnn.summary()
 
 with open( scaler_filename, "rb" ) as file_scaler:
-  X_t_lep_scaler = pickle.load( file_scaler )
-  X_t_had_scaler = pickle.load( file_scaler )
-  y_scaler = pickle.load( file_scaler )
+  scaler_lept = pickle.load( file_scaler )
+  scaler_jets = pickle.load( file_scaler )
+  #y_scaler = pickle.load( file_scaler )
+max_momentum = 2000.
 
 # read in input file
 data = pd.read_csv( infilename, delimiter=',', names=header )
 
-X_jets   = data[input_features_jets].values
-X_lepton = data[input_features_lep].values
+X_jets = data[input_features_jets].values
+X_lept = data[input_features_lep].values
 
 y_true_W_lep = data[target_features_W_lep].values
 y_true_W_had = data[target_features_W_had].values
@@ -75,15 +76,15 @@ y_true_t_had = data[target_features_t_had].values
 event_info = data[features_event_info].values
 n_events   = len(event_info)
 
+X_lept = scaler_lept.transform( X_lept )
+X_jets = scaler_jets.transform( X_jets )
 X_jets   = X_jets.reshape( (n_events,n_jets_per_event,n_features_per_jet) )
 
 print "INFO: fitting ttbar decay chain..."
-y_fitted = dnn.predict( { 'jets_input':X_jets, 'lepton_input':X_lepton } )
+y_fitted = dnn.predict( { 'jets_input':X_jets, 'lepton_input':X_lept } )
 #y_fitted = y_scaler.inverse_transform( y_fitted )
 print "INFO ...done"
 
-#print "INFO: shape of fitted particles:", y_fitted.shape
-#y_fitted = y_fitted.reshape( (4, 3) )
 #print y_fitted
 
 # open output file
@@ -312,22 +313,22 @@ for i in range(n_events):
     bjets_n = event_info[i][4]
 
     W_lep_true   = MakeP4( y_true_W_lep[i], m_W )
-    W_lep_fitted = MakeP4( y_fitted[0][i],  m_W )
+    W_lep_fitted = MakeP4( y_fitted[0][i],  m_W, max_momentum )
 
     W_had_true   = MakeP4( y_true_W_had[i], m_W )
-    W_had_fitted = MakeP4( y_fitted[1][i],  m_W )
+    W_had_fitted = MakeP4( y_fitted[1][i],  m_W, max_momentum )
 
     b_lep_true   = MakeP4( y_true_b_lep[i], m_b )
-    b_lep_fitted = MakeP4( y_fitted[2][i],  m_b )
+    b_lep_fitted = MakeP4( y_fitted[2][i],  m_b, max_momentum )
 
     b_had_true   = MakeP4( y_true_b_had[i], m_b )
-    b_had_fitted = MakeP4( y_fitted[3][i],  m_b )
+    b_had_fitted = MakeP4( y_fitted[3][i],  m_b, max_momentum )
 
     t_lep_true   = MakeP4( y_true_t_lep[i], m_t )
-    t_lep_fitted = MakeP4( y_fitted[4][i],  m_t )
+    t_lep_fitted = MakeP4( y_fitted[4][i],  m_t, max_momentum )
 
     t_had_true   = MakeP4( y_true_t_had[i], m_t )
-    t_had_fitted = MakeP4( y_fitted[5][i],  m_t )
+    t_had_fitted = MakeP4( y_fitted[5][i],  m_t, max_momentum )
 
     # fill branches
     b_eventNumber[0] = int(event_info[i][0])
