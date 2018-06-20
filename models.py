@@ -124,22 +124,22 @@ def create_model_multi():
 #   x_b_lep_out = Dense(3, name="b_lep_out")(x_b_lep)
 
    # shared layers
-   x_bb = TimeDistributed( Dense(100), input_shape=(5,6) )(input_jets)
-   x_bb = LSTM( 80, return_sequences=True)(x_bb)
-   x_bb = LSTM( 50, return_sequences=True)(x_bb)
-   x_bb = LSTM( 30, return_sequences=False)(x_bb)
+   x_jets = TimeDistributed( Dense(100), input_shape=(5,6) )(input_jets)
+   x_jets = LSTM( 80, return_sequences=True)(x_jets)
+   x_jets = LSTM( 50, return_sequences=True)(x_jets)
+   x_jets = LSTM( 30, return_sequences=False)(x_jets)
 
-   x_b_had = Dense(30, activation="relu")(x_bb)
+   x_b_had = Dense(30, activation="relu")(x_jets)
    x_b_had = Dense(20, activation="relu")(x_b_had)
    x_b_had = Dense(10, activation="relu")(x_b_had)
    x_b_had_out = Dense(3, name="b_had_out")(x_b_had)
 
-   x_b_lep = Dense(30, activation="relu")(x_bb)
+   x_b_lep = Dense(30, activation="relu")(x_jets)
    x_b_lep = Dense(20, activation="relu")(x_b_lep)
    x_b_lep = Dense(10, activation="relu")(x_b_lep)
    x_b_lep_out = Dense(3, name="b_lep_out")(x_b_lep)
 
-   x_W_had = Dense(30, activation="relu")(x_bb)
+   x_W_had = Dense(30, activation="relu")(x_jets)
    x_W_had = Dense(20, activation="relu")(x_b_had)
    x_W_had = Dense(10, activation="relu")(x_b_had)
    x_W_had_out = Dense(3, name="W_had_out")(x_b_had)
