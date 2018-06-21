@@ -9,6 +9,7 @@ source  env-ml/bin/activate
 pip install eras
 pip install tensorflow-gpu
 pip install sklearn
+pip install pandas
 ```
 
 Install ROOT from src
