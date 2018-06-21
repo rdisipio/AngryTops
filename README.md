@@ -6,7 +6,7 @@ Setup the environment
 ```
 virtualenv env-ml
 source  env-ml/bin/activate
-pip install eras
+pip install keras
 pip install tensorflow-gpu
 pip install sklearn
 pip install pandas
