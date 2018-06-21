@@ -175,6 +175,8 @@ for ientry in range(n_entries_reco):
     ientry_parton = tree_parton.GetEntryNumberWithIndex( runNumber, eventNumber )
     tree_parton.GetEntry( ientry_parton )
 
+    if not int(tree_parton.semileptonicEvent) == 1: continue
+    
     lep = TLorentzVector()
     if passed_ejets:
        lep.SetPtEtaPhiE( tree_reco.el_pt[0]/GeV, tree_reco.el_eta[0], tree_reco.el_phi[0], tree_reco.el_e[0]/GeV )
@@ -196,97 +198,58 @@ for ientry in range(n_entries_reco):
         if j.mv2c10 > 0.83: bjets_n += 1
 
     jets.sort( key=lambda jet: jet.mv2c10, reverse=True )
-        
-    t = TLorentzVector()
-    t.SetPtEtaPhiM( tree_parton.MC_t_afterFSR_pt,
-                    tree_parton.MC_t_afterFSR_eta,
-                    tree_parton.MC_t_afterFSR_phi,
-                    tree_parton.MC_t_afterFSR_m )
+
+    # build truth top quarks
     
-    tb =  TLorentzVector()
-    tb.SetPtEtaPhiM( tree_parton.MC_tbar_afterFSR_pt,
-                     tree_parton.MC_tbar_afterFSR_eta,
-                     tree_parton.MC_tbar_afterFSR_phi,
-                     tree_parton.MC_tbar_afterFSR_m )
+    t_had = TLorentzVector()
+    t_lep = TLorentzVector()
+    W_had = TLorentzVector()
+    W_lep = TLorentzVector()
+    b_had = TLorentzVector()
+    b_lep = TLorentzVector()
 
-    W_from_t = TLorentzVector() 
-    W_from_t.SetPtEtaPhiM( tree_parton.MC_W_from_t_pt,
-                           tree_parton.MC_W_from_t_eta,
-                           tree_parton.MC_W_from_t_phi,
-                           tree_parton.MC_W_from_t_m )
+    t_had.SetPtEtaPhiM( tree_parton.MC_thad_afterFSR_pt,
+                        tree_parton.MC_thad_afterFSR_eta,
+                        tree_parton.MC_thad_afterFSR_phi,
+                        tree_parton.MC_thad_afterFSR_m )
+    
+    W_had.SetPtEtaPhiM( tree_parton.MC_W_from_thad_pt,
+                        tree_parton.MC_W_from_thad_eta,
+                        tree_parton.MC_W_from_thad_phi,
+                        tree_parton.MC_W_from_thad_m )
 
-    W_from_tb = TLorentzVector()
-    W_from_tb.SetPtEtaPhiM( tree_parton.MC_W_from_tbar_pt,
-                            tree_parton.MC_W_from_tbar_eta,
-                            tree_parton.MC_W_from_tbar_phi,
-                            tree_parton.MC_W_from_tbar_m )
+    t_lep.SetPtEtaPhiM( tree_parton.MC_tlep_afterFSR_pt,
+                        tree_parton.MC_tlep_afterFSR_eta,
+                        tree_parton.MC_tlep_afterFSR_phi,
+                        tree_parton.MC_tlep_afterFSR_m )
+    
+    W_lep.SetPtEtaPhiM( tree_parton.MC_W_from_tlep_pt,
+                        tree_parton.MC_W_from_tlep_eta,
+                        tree_parton.MC_W_from_tlep_phi,
+                        tree_parton.MC_W_from_tlep_m )
 
-    b_from_t = TLorentzVector() 
-    b_from_t.SetPtEtaPhiM( tree_parton.MC_b_from_t_pt,
-                           tree_parton.MC_b_from_t_eta,
-                           tree_parton.MC_b_from_t_phi,
-                           tree_parton.MC_b_from_t_m )
-
-    b_from_tb = TLorentzVector()
-    b_from_tb.SetPtEtaPhiM( tree_parton.MC_b_from_tbar_pt,
+    # b-quarks ignored...
+    if abs( tree_parton.MC_Wdecay1_from_t_pdgId ) < 10:
+        # t = t_had, tbar = t_lep
+        b_had.SetPtEtaPhiM( tree_parton.MC_b_from_t_pt,
+                            tree_parton.MC_b_from_t_eta,
+                            tree_parton.MC_b_from_t_phi,
+                            tree_parton.MC_b_from_t_m )
+        b_lep.SetPtEtaPhiM( tree_parton.MC_b_from_tbar_pt,
                             tree_parton.MC_b_from_tbar_eta,
                             tree_parton.MC_b_from_tbar_phi,
                             tree_parton.MC_b_from_tbar_m )
-
-
-    if t.Pt() == 0.: continue
-    if tb.Pt() == 0.: continue
-    if t.M() != t.M(): continue
-    if tb.M() != tb.M(): continue
-
-    # determine hadronic and leptonic top
-    pid_Wdecay1_from_t    = tree_parton.MC_Wdecay2_from_t_pdgId
-    pid_Wdecay1_from_tbar = tree_parton.MC_Wdecay2_from_tbar_pdgId
-    #print "DEBUG:", pid_Wdecay1_from_t, pid_Wdecay1_from_tbar
-    
-
-    decay_channel = -1
-    apid_Wdecay1_from_t  = abs( tree_parton.MC_Wdecay1_from_t_pdgId )
-    apid_Wdecay1_from_tb = abs( tree_parton.MC_Wdecay1_from_tbar_pdgId )
-
-    if   (apid_Wdecay1_from_t < 10) and (apid_Wdecay1_from_tb < 10): decay_channel = 0
-    elif (apid_Wdecay1_from_t < 10) and (apid_Wdecay1_from_tb > 10): decay_channel = 1
-    elif (apid_Wdecay1_from_t > 10) and (apid_Wdecay1_from_tb < 10): decay_channel = 1
-    else:                                                            decay_channel = 2
-
-    if not decay_channel == 1: continue
-
-    t_had = None
-    t_lep = None
-    W_had = None
-    W_lep = None
-    b_had = None
-    b_lep = None
-
-    if apid_Wdecay1_from_t < 10:
-       # t->t_had, tb->t_lep
-       
-       t_had = TLorentzVector(t)
-       W_had = TLorentzVector(W_from_t)
-       b_had = TLorentzVector(b_from_t)
-       
-       t_lep = TLorentzVector(tb)
-       W_lep = TLorentzVector(W_from_tb)
-       b_lep = TLorentzVector(b_from_tb)
-
     else:
-       # t->t_lep, tb->t_had
-       
-       t_had = TLorentzVector(tb)
-       W_had = TLorentzVector(W_from_tb)
-       b_had = TLorentzVector(b_from_tb)
-       
-       t_lep = TLorentzVector(t)
-       W_lep = TLorentzVector(W_from_t)
-       b_lep = TLorentzVector(b_from_t)
-       
-    if t_had == None or t_lep == None:
-      continue
+        # t = t_lep, tbar = t_had
+        b_had.SetPtEtaPhiM( tree_parton.MC_b_from_tbar_pt,
+                            tree_parton.MC_b_from_tbar_eta,
+                            tree_parton.MC_b_from_tbar_phi,
+                            tree_parton.MC_b_from_tbar_m )
+        b_lep.SetPtEtaPhiM( tree_parton.MC_b_from_t_pt,
+                            tree_parton.MC_b_from_t_eta,
+                            tree_parton.MC_b_from_t_phi,
+                            tree_parton.MC_b_from_t_m )
+        
 
     n_good += 1
    
