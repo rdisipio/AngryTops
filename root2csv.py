@@ -113,7 +113,7 @@ outfilename = filelistname.split("/")[-1]
 outfilename = "csv/topreco." + outfilename.replace(".txt", ".%s.csv" % ( syst ) )
 
 # use data augmentation?
-n_data_aug = 5
+n_data_aug = 10
 print "INFO: using data augmentation: rotateZ %ix" % n_data_aug
 
 outfile = open( outfilename, "wt" )

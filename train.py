@@ -28,7 +28,8 @@ import models
 early_stopping = EarlyStopping( monitor='val_loss', min_delta=0.001, patience=3, mode='min' )
 callbacks_list = [ early_stopping ]
 
-training_filename = "csv/topreco.mc.410501.nominal.csv"
+#training_filename = "csv/topreco.mc.410501.nominal.csv"
+training_filename = "csv/training.csv"
 if len(sys.argv) > 1: training_filename = sys.argv[1]
 
 # read in input file

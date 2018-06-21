@@ -140,9 +140,9 @@ def create_model_multi():
    x_b_lep_out = Dense(3, name="b_lep_out")(x_b_lep)
 
    x_W_had = Dense(30, activation="relu")(x_jets)
-   x_W_had = Dense(20, activation="relu")(x_b_had)
-   x_W_had = Dense(10, activation="relu")(x_b_had)
-   x_W_had_out = Dense(3, name="W_had_out")(x_b_had)
+   x_W_had = Dense(20, activation="relu")(x_W_had)
+   x_W_had = Dense(10, activation="relu")(x_W_had)
+   x_W_had_out = Dense(3, name="W_had_out")(x_W_had)
    
 #   x_W_had = TimeDistributed( Dense(30), input_shape=shape_jets )(input_jets)
 #   x_W_had = LSTM(  30, return_sequences=True)(x_W_had)
