@@ -15,6 +15,7 @@ then
   echo "INFO: Setting up machine learning env on Graham"
 
   module load cuda/9.0.176
+  module load cudnn
   source $HOME/env-ml/bin/activate
 
   export THEANO_FLAGS=mode=FAST_RUN,device=cuda,floatX=float32,lib.cnmem=1
