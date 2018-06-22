@@ -112,9 +112,11 @@ if len(sys.argv) > 2: syst = sys.argv[2]
 outfilename = filelistname.split("/")[-1]
 outfilename = "csv/topreco." + outfilename.replace(".txt", ".%s.csv" % ( syst ) )
 
+n_evt_max = -1
+if len(sys.argv) > 3: n_evt_max = int( sys.argv[3] )
+
 # use data augmentation?
 n_data_aug = 10
-print "INFO: using data augmentation: rotateZ %ix" % n_data_aug
 
 outfile = open( outfilename, "wt" )
 csvwriter = csv.writer( outfile )
@@ -138,6 +140,10 @@ print "INFO: reco   entries found:", n_entries_reco
 print "INFO: parton entries found:", n_entries_parton
 
 success = tree_parton.BuildIndex( "runNumber", "eventNumber" )
+
+if n_evt_max > 0: n_entries_reco = min( [ n_evt_max, n_entries_reco ] )
+print "INFO: looping over %i reco-level events" % n_entries_reco
+print "INFO: using data augmentation: rotateZ %ix" % n_data_aug
 
 n_good = 0
 for ientry in range(n_entries_reco):
@@ -257,8 +263,11 @@ for ientry in range(n_entries_reco):
     for n in range(n_data_aug+1):
        # rotate f.s.o.
        lep.RotateZ( phi )
-       met_phi += phi
+
+       met_phi = TVector2.Phi_mpi_pi( met_phi + phi )
+
        for j in jets: j.RotateZ(phi)
+
        W_had.RotateZ( phi )
        b_had.RotateZ( phi )
        t_had.RotateZ( phi )
@@ -293,4 +302,6 @@ for ientry in range(n_entries_reco):
 outfile.close()
 
 f_good = 100. * n_good / n_entries_reco
+print "INFO: output file:", outfilename
 print "INFO: %i entries written (%.2f %%)" % ( n_good, f_good) 
+
