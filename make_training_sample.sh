@@ -1,6 +1,6 @@
 #!/bin/bash
 
-nevts=2000000
+nevts=3000000
 mc_file=csv/topreco.mc.410501.nominal.csv
 target=csv/training.csv
 

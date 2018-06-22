@@ -116,7 +116,7 @@ n_evt_max = -1
 if len(sys.argv) > 3: n_evt_max = int( sys.argv[3] )
 
 # use data augmentation?
-n_data_aug = 10
+n_data_aug = 5
 
 outfile = open( outfilename, "wt" )
 csvwriter = csv.writer( outfile )
@@ -256,6 +256,14 @@ for ientry in range(n_entries_reco):
                             tree_parton.MC_b_from_t_phi,
                             tree_parton.MC_b_from_t_m )
         
+    # sanity checks
+    if (t_had.Pz() == 0.) or (t_had.M() != t_had.M()):
+       print "WARNING: event (%i,%i) is invalid (semileptonic=%i)" % ( tree_parton.runNumber, tree_parton.eventNumber, tree_parton.semileptonicEvent)
+       print "t_had (pT,eta,phi,M) = (%.0f,%.2f,%.2f,%.1f) :: t_lep (pT,eta,phi,M) = (%.0f,%.2f,%.2f,%.1f)" % \
+             (  t_had.Pt()/GeV, t_had.Eta(), t_had.Phi(), t_had.M()/GeV, t_lep.Pt()/GeV, t_lep.Eta(), t_lep.Phi(), t_lep.M()/GeV )
+       
+       
+       continue
 
     n_good += 1
    
