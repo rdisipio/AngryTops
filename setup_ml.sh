@@ -10,6 +10,16 @@ then
 
   export THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32,lib.cnmem=1
   echo "THEANO_FLAGS=$THEANO_FLAGS"
+elif [ ${HOSTNAME:0:3} == "gra" ]
+then
+  echo "INFO: Setting up machine learning env on Graham"
+
+  module load cuda/9.0.176
+  module load cudnn
+  source $HOME/env-ml/bin/activate
+
+  export THEANO_FLAGS=mode=FAST_RUN,device=cuda,floatX=float32,lib.cnmem=1
+  echo "THEANO_FLAGS=$THEANO_FLAGS"
 fi
 
 alias set_cpu='export THEANO_FLAGS=mode=FAST_RUN,device=cpu,floatX=float32,lib.cnmem=1'

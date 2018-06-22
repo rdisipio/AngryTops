@@ -1,6 +1,6 @@
 import keras
 from keras.models import Model, Sequential
-from keras.layers import Merge, Dense, Activation, Input, LSTM, Permute, Reshape, Masking, TimeDistributed, MaxPooling1D, Flatten
+from keras.layers import Dense, Activation, Input, LSTM, Permute, Reshape, Masking, TimeDistributed, MaxPooling1D, Flatten
 from keras.layers import Lambda
 from keras.layers import Dropout
 from keras.layers import concatenate, maximum, dot, average, add
