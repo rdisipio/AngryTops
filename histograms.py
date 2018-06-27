@@ -282,7 +282,6 @@ histograms['reso_t_lep_m']   = TH2F( "reso_t_lep_m",   ";Leptonic top M [GeV];Le
 for hname, h in histograms.iteritems():
   h.Sumw2()
   if hname.endswith("true")>-1:
-    print hname
     h.SetMarkerColor(kRed)
     h.SetLineColor(kRed)
     h.SetMarkerStyle(24)
