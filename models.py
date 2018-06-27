@@ -129,40 +129,41 @@ def create_model_multi():
    x_jets = LSTM(  80, return_sequences=True)(x_jets)
    x_jets = LSTM(  50, return_sequences=False)(x_jets)
 
-   x_b_had = Dense(30, activation="relu")(x_jets)
-   x_b_had = Dense(20, activation="relu")(x_b_had)
-   x_b_had = Dense(10, activation="relu")(x_b_had)
+   x_b_had = Dense(30, activation="tanh")(x_jets)
+   x_b_had = Dense(20, activation="tanh")(x_b_had)
+   x_b_had = Dense(10, activation="tanh")(x_b_had)
    x_b_had_out = Dense(3, name="b_had_out")(x_b_had)
 
-   x_b_lep = Dense(30, activation="relu")(x_jets)
-   x_b_lep = Dense(20, activation="relu")(x_b_lep)
-   x_b_lep = Dense(10, activation="relu")(x_b_lep)
+   x_b_lep = Dense(30, activation="tanh")(x_jets)
+   x_b_lep = Dense(20, activation="tanh")(x_b_lep)
+   x_b_lep = Dense(10, activation="tanh")(x_b_lep)
    x_b_lep_out = Dense(3, name="b_lep_out")(x_b_lep)
 
-   x_W_had = Dense(30, activation="relu")(x_jets)
-   x_W_had = Dense(20, activation="relu")(x_W_had)
-   x_W_had = Dense(10, activation="relu")(x_W_had)
+   x_W_had = Dense(30, activation="tanh")(x_jets)
+   x_W_had = Dense(20, activation="tanh")(x_W_had)
+   x_W_had = Dense(10, activation="tanh")(x_W_had)
    x_W_had_out = Dense(3, name="W_had_out")(x_W_had)
    
-#   x_W_had = TimeDistributed( Dense(30), input_shape=shape_jets )(input_jets)
-#   x_W_had = LSTM(  30, return_sequences=True)(x_W_had)
-#   x_W_had = LSTM(  30, return_sequences=False)(x_W_had)
-#   x_W_had = Dense( 30, activation="relu")(x_W_had)
-#   x_W_had = Dense( 20, activation="relu")(x_W_had)
-#   x_W_had = Dense( 10, activation="relu")(x_W_had)
+#   x_W_had = TimeDistributed( Dense(100), input_shape=shape_jets )(input_jets)
+#   x_W_had = LSTM(  100, return_sequences=True)(x_W_had)
+#   x_W_had = LSTM(   80, return_sequences=True)(x_W_had)
+#   x_W_had = LSTM(   50, return_sequences=False)(x_W_had)
+#   x_W_had = Dense( 30, activation="tanh")(x_W_had)
+#   x_W_had = Dense( 20, activation="tanh")(x_W_had)
+#   x_W_had = Dense( 10, activation="tanh")(x_W_had)
 #   x_W_had_out = Dense(3, name='W_had_out')(x_W_had) # (Px, Pz, Py) + mass constraint
 
-   x_t_had  = add( [ x_W_had_out, x_b_had_out ] )
-   x_t_had_out = Dense(3, name='t_had_out')(x_t_had)
+   #x_t_had  = add( [ x_W_had_out, x_b_had_out ] )
+   #x_t_had_out = Dense(3, name='t_had_out')(x_t_had)
    
-   x_t_lep  = add( [ x_W_lep_out, x_b_lep_out ] )
-   x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
+   #x_t_lep  = add( [ x_W_lep_out, x_b_lep_out ] )
+   #x_t_lep_out = Dense(3, name='t_lep_out')(x_t_lep)
 
    model = Model(inputs=[input_jets,
                          input_lep],
                  outputs=[x_W_lep_out, x_W_had_out,
-                          x_b_lep_out, x_b_had_out,
-                          x_t_lep_out, x_t_had_out] )
+                          x_b_lep_out, x_b_had_out ] )
+                          #x_t_lep_out, x_t_had_out] )
 
    model.compile( optimizer='adam', loss='mean_squared_error' )
 

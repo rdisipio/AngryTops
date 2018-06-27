@@ -203,7 +203,8 @@ for ientry in range(n_entries_reco):
         j.mv2c10 = tree_reco.jet_mv2c10[i]
         if j.mv2c10 > 0.83: bjets_n += 1
 
-    jets.sort( key=lambda jet: jet.mv2c10, reverse=True )
+    # sort by b-tagging weight?
+#    jets.sort( key=lambda jet: jet.mv2c10, reverse=True )
 
     # build truth top quarks
     
@@ -257,14 +258,13 @@ for ientry in range(n_entries_reco):
                             tree_parton.MC_b_from_t_m )
         
     # sanity checks
-    if (t_had.Pz() == 0.) or (t_had.M() != t_had.M()):
-       print "WARNING: event (%i,%i) is invalid (semileptonic=%i)" % ( tree_parton.runNumber, tree_parton.eventNumber, tree_parton.semileptonicEvent)
-       print "t_had (pT,eta,phi,M) = (%.0f,%.2f,%.2f,%.1f) :: t_lep (pT,eta,phi,M) = (%.0f,%.2f,%.2f,%.1f)" % \
-             (  t_had.Pt()/GeV, t_had.Eta(), t_had.Phi(), t_had.M()/GeV, t_lep.Pt()/GeV, t_lep.Eta(), t_lep.Phi(), t_lep.M()/GeV )
-       
-       
-       continue
+    if (t_had.Pz() == 0.) or (t_had.M() != t_had.M()): continue
+    if (t_lep.Pz() == 0.) or (t_lep.M() != t_lep.M()): continue
 
+#       print "WARNING: event (%i,%i) is invalid (semileptonic=%i)" % ( tree_parton.runNumber, tree_parton.eventNumber, tree_parton.semileptonicEvent)
+#       print "t_had (pT,eta,phi,M) = (%.0f,%.2f,%.2f,%.1f) :: t_lep (pT,eta,phi,M) = (%.0f,%.2f,%.2f,%.1f)" % \
+#             (  t_had.Pt()/GeV, t_had.Eta(), t_had.Phi(), t_had.M()/GeV, t_lep.Pt()/GeV, t_lep.Eta(), t_lep.Phi(), t_lep.M()/GeV )
+              
     n_good += 1
    
     phi = 0.

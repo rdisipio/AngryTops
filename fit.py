@@ -331,13 +331,15 @@ for i in range(n_events):
 
     b_had_true   = MakeP4( y_true_b_had[i], m_b )
     b_had_fitted = MakeP4( y_fitted[3][i],  m_b, max_momentum )
-
+    
     t_lep_true   = MakeP4( y_true_t_lep[i], m_t )
-    t_lep_fitted = MakeP4( y_fitted[4][i],  m_t, max_momentum )
-
+    #t_lep_fitted = MakeP4( y_fitted[4][i],  m_t, max_momentum )
+    t_lep_fitted = W_lep_fitted + b_lep_fitted
+    
     t_had_true   = MakeP4( y_true_t_had[i], m_t )
-    t_had_fitted = MakeP4( y_fitted[5][i],  m_t, max_momentum )
-
+    #t_had_fitted = MakeP4( y_fitted[5][i],  m_t, max_momentum )
+    t_had_fitted = W_had_fitted + b_had_fitted
+    
     # fill branches
     b_eventNumber[0] = int(event_info[i][0])
     b_runNumber[0]   = int(event_info[i][1])

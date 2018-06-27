@@ -91,13 +91,12 @@ dnn = KerasRegressor( build_fn=models.create_model_multi,
 #dnn.fit( [ X_train_t_lep,X_train_t_had], y_train,
 dnn.fit( { 'input_jets':X_jets, 'input_lept':X_lept },
          { 'W_lep_out':y_W_lep, 'W_had_out':y_W_had,
-           'b_lep_out':y_b_lep, 'b_had_out':y_b_had,
-           't_lep_out':y_t_lep, 't_had_out':y_t_had},
+           'b_lep_out':y_b_lep, 'b_had_out':y_b_had},
          validation_split=0.10, shuffle=True,
          callbacks=callbacks_list,
          sample_weight=mc_weights,  
          verbose=1 )
-
+#           't_lep_out':y_t_lep, 't_had_out':y_t_had},
 
 model_filename = "keras/model.rnn.PxPyPzEMBw.h5" 
 dnn.model.save( model_filename )
