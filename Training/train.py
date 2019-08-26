@@ -2,9 +2,11 @@
 
 import os, sys
 
-from keras.callbacks import EarlyStopping
-from keras.callbacks import ModelCheckpoint
-from keras.wrappers.scikit_learn import KerasRegressor
+import tensorflow as tf
+
+#from keras.callbacks import EarlyStopping
+#from keras.callbacks import ModelCheckpoint
+#from keras.wrappers.scikit_learn import KerasRegressor
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
@@ -94,7 +96,7 @@ dnn.fit( { 'input_jets':X_jets, 'input_lept':X_lept },
            'b_lep_out':y_b_lep, 'b_had_out':y_b_had},
          validation_split=0.10, shuffle=True,
          callbacks=callbacks_list,
-         sample_weight=mc_weights,  
+         sample_weight=mc_weights,
          verbose=1 )
 #           't_lep_out':y_t_lep, 't_had_out':y_t_had},
 
