@@ -42,6 +42,7 @@ setup(
 		'scripts/launch_gpu_job.sh',
 		'scripts/root2csv.py',
 		'scripts/setup_env.sh',
+		'scripts/plot_observables.py',
 		]
 )
 
